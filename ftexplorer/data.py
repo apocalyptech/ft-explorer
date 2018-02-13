@@ -50,7 +50,7 @@ class Node(object):
         Lets us behave somewhat like a list
         """
         if self.child_keys is None:
-            self.child_keys = sorted(self.children.keys())
+            self.child_keys = sorted(self.children.keys(), key=str.lower)
         return self.children[self.child_keys[item]]
 
     def start_data(self, obj_name_parts, obj_type):
