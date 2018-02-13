@@ -66,3 +66,8 @@ Some things which are less likely to happen:
 * Searching
 * Fancy icons and stuff in the tree
 
+License
+-------
+
+This is licensed under the [3-clause BSD license](https://opensource.org/licenses/BSD-3-Clause).
+See [COPYING.txt](COPYING.txt).
