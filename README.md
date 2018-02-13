@@ -53,8 +53,6 @@ convinced to spend some more effort on it.
 Some things which are at least somewhat likely to happen:
 
 * Syntax Highlighting
-* Multi-Line conversions for the object dumps, for readability (like
-  FilterTool does)
 * Ability to read resources right from the FilterTool zipfile.
 * *(could we instead bundle the dumps ourselves?  Will have to inquire with
   the FilterTool folks about redistributability)*

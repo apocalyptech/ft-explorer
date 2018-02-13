@@ -36,9 +36,10 @@ class MainTree(QtWidgets.QTreeView):
 
     object_role = QtCore.Qt.UserRole + 1
 
-    def __init__(self, data, display):
+    def __init__(self, parent, data, display):
 
-        super().__init__()
+        super().__init__(parent)
+        self.parent = parent
         self.data = data
         self.display = display
 
@@ -73,7 +74,7 @@ class MainTree(QtWidgets.QTreeView):
         if len(selected.indexes()) > 0:
             node = selected.indexes()[0].data(self.object_role)
             if len(node.data) > 0:
-                self.display.setText(''.join(node.data))
+                self.display.setNode(node)
             else:
                 self.display.setText('(no data)')
         else:
@@ -84,9 +85,11 @@ class DataDisplay(QtWidgets.QTextEdit):
     Display area for our data
     """
 
-    def __init__(self):
-        super().__init__()
-        self.setPlainText('(nothing selected)')
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.node = None
+        self.setText('(nothing selected)')
         self.setReadOnly(True)
 
         # Use a Monospaced font
@@ -96,6 +99,86 @@ class DataDisplay(QtWidgets.QTextEdit):
 
         # Default to not word-wrapping
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
+
+    def setText(self, text, clear_node=True):
+        """
+        Sets text
+        """
+        if clear_node:
+            self.node = None
+        super().setText(text)
+
+    def setHtml(self, text, clear_node=True):
+        """
+        Sets HTML
+        """
+        if clear_node:
+            self.node = None
+        super().setHtml(text)
+
+    def setPlainText(self, text, clear_node=True):
+        """
+        Sets plain text
+        """
+        if clear_node:
+            self.node = None
+        super().setPlainText(text)
+
+    def setNode(self, node):
+        """
+        Sets our currently-shown node, which will take into account our
+        multiline option.
+        """
+        self.node = node
+        self.updateText()
+
+    def updateText(self):
+        """
+        Updates the text that we're showing, taking into account our
+        multiline option.
+        """
+        # Only update if we have a node
+        if self.node:
+
+            do_multiline = self.parent.toolbar.action_multiline.isChecked()
+            if do_multiline:
+                # This is all pretty hacky, but seems to work fine.
+                output = []
+                for line in self.node.data:
+                    indent_level = 1
+                    parts = line.split('=', 1)
+                    if len(parts) == 1:
+                        output.append(line)
+                    else:
+                        chars = [char for char in parts[0]]
+                        chars.append('=')
+                        for char in parts[1]:
+                            if char == '(':
+                                indent_level += 1
+                                chars.append(char)
+                                chars.append("\n")
+                                output.append(''.join(chars))
+                                chars = [' '*(indent_level*4)]
+                            elif char == ')':
+                                if indent_level > 1:
+                                    indent_level -= 1
+                                chars.append("\n")
+                                output.append(''.join(chars))
+                                chars = [' '*(indent_level*4)]
+                                chars.append(char)
+                            elif char == ',' and indent_level > 1:
+                                chars.append(char)
+                                chars.append("\n")
+                                output.append(''.join(chars))
+                                chars = [' '*(indent_level*4)]
+                            else:
+                                chars.append(char)
+                        output.append(''.join(chars))
+            else:
+                output = self.node.data
+
+            # Display
+            self.setText(''.join(output), clear_node=False)
 
 class MainToolBar(QtWidgets.QToolBar):
     """
@@ -108,6 +191,9 @@ class MainToolBar(QtWidgets.QToolBar):
 
         self.action_wrap = self.addAction('Word Wrap', parent.toggle_word_wrap)
         self.action_wrap.setCheckable(True)
+
+        self.action_multiline = self.addAction('Multiline', parent.toggle_multiline)
+        self.action_multiline.setCheckable(True)
 
 class GUI(QtWidgets.QMainWindow):
     """
@@ -133,10 +219,10 @@ class GUI(QtWidgets.QMainWindow):
         splitter = QtWidgets.QSplitter()
 
         # Set up our display area and add it to the hbox
-        self.display = DataDisplay()
+        self.display = DataDisplay(self)
 
         # Set up our treeview
-        self.treeview = MainTree(self.data, self.display)
+        self.treeview = MainTree(self, self.data, self.display)
 
         # Add both to the splitter
         splitter.addWidget(self.treeview)
@@ -153,11 +239,20 @@ class GUI(QtWidgets.QMainWindow):
         self.show()
 
     def toggle_word_wrap(self):
+        """
+        Toggle word wrapping
+        """
         do_wrap = self.toolbar.action_wrap.isChecked()
         if do_wrap:
             self.display.setWordWrapMode(QtGui.QTextOption.WrapAtWordBoundaryOrAnywhere)
         else:
             self.display.setWordWrapMode(QtGui.QTextOption.NoWrap)
+
+    def toggle_multiline(self):
+        """
+        Toggle multiline output
+        """
+        self.display.updateText()
 
 class Application(QtWidgets.QApplication):
     """
