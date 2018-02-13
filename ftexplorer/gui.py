@@ -215,7 +215,7 @@ class DataDisplay(QtWidgets.QTextEdit):
 
                     # Numbers in red
                     output[idx] = re.sub(r'\((\d+)\)', r'(<font color="darkred">\1</font>)', output[idx])
-                    output[idx] = re.sub(r'=([0-9\.]+)', r'=<font color="darkred">\1</font>', output[idx])
+                    output[idx] = re.sub(r'=(-?[0-9\.]+)', r'=<font color="darkred">\1</font>', output[idx])
 
                     # Booleans/Nones in purple, I guess
                     output[idx] = re.sub(r'=(none|true|false)', r'=<font color="darkviolet">\1</font>', output[idx], flags=re.I)
