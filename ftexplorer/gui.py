@@ -145,7 +145,7 @@ class DataDisplay(QtWidgets.QTextEdit):
                 # This is all pretty hacky, but seems to work fine.
                 output = []
                 for line in self.node.data:
-                    indent_level = 1
+                    indent_level = 0
                     parts = line.split('=', 1)
                     if len(parts) == 1:
                         output.append(line)
@@ -158,19 +158,19 @@ class DataDisplay(QtWidgets.QTextEdit):
                                 chars.append(char)
                                 chars.append("\n")
                                 output.append(''.join(chars))
-                                chars = [' '*(indent_level*4)]
+                                chars = [' '*((indent_level+1)*4)]
                             elif char == ')':
-                                if indent_level > 1:
+                                if indent_level > 0:
                                     indent_level -= 1
                                 chars.append("\n")
                                 output.append(''.join(chars))
-                                chars = [' '*(indent_level*4)]
+                                chars = [' '*((indent_level+1)*4)]
                                 chars.append(char)
-                            elif char == ',' and indent_level > 1:
+                            elif char == ',' and indent_level > 0:
                                 chars.append(char)
                                 chars.append("\n")
                                 output.append(''.join(chars))
-                                chars = [' '*(indent_level*4)]
+                                chars = [' '*((indent_level+1)*4)]
                             else:
                                 chars.append(char)
                         output.append(''.join(chars))
