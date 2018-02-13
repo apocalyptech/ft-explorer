@@ -79,31 +79,35 @@ class MainTree(QtWidgets.QTreeView):
         else:
             self.display.setText('(nothing selected)')
 
-class DataDisplay(QtWidgets.QLabel):
+class DataDisplay(QtWidgets.QTextEdit):
     """
     Display area for our data
     """
 
     def __init__(self):
         super().__init__()
-        self.setText('(nothing selected)')
-        self.setMargin(10)
-        self.setFrameShadow(self.Sunken)
-        self.setFrameShape(self.Panel)
-        self.setLineWidth(2)
-        self.setAutoFillBackground(True)
-        self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
-        self.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.setPlainText('(nothing selected)')
+        self.setReadOnly(True)
 
-        # Should figure out how to do this appropriately, rather than
-        # just blindly lightening.
-        pal = self.palette()
-        bgcolor = pal.color(pal.Window)
-        pal.setColor(pal.Window, bgcolor.lighter())
-        self.setPalette(pal)
+        # Use a Monospaced font
+        font = QtGui.QFont('Monospace')
+        font.setStyleHint(font.Monospace)
+        self.setFont(font)
 
-    def setText(self, text):
-        super().setText('<pre>{}</pre>'.format(text))
+        # Default to not word-wrapping
+        self.setWordWrapMode(QtGui.QTextOption.NoWrap)
+
+class MainToolBar(QtWidgets.QToolBar):
+    """
+    Toolbar to hold a few toggles for us
+    """
+
+    def __init__(self, parent):
+
+        super().__init__(parent)
+
+        self.action_wrap = self.addAction('Word Wrap', parent.toggle_word_wrap)
+        self.action_wrap.setCheckable(True)
 
 class GUI(QtWidgets.QMainWindow):
     """
@@ -121,21 +125,22 @@ class GUI(QtWidgets.QMainWindow):
         self.resize(500, 400)
         self.setWindowTitle('FT Explorer')
 
+        # Load our toolbar
+        self.toolbar = MainToolBar(self)
+        self.addToolBar(self.toolbar)
+
         # Set up a QSplitter
         splitter = QtWidgets.QSplitter()
 
         # Set up our display area and add it to the hbox
         self.display = DataDisplay()
-        scroll = QtWidgets.QScrollArea()
-        scroll.setWidget(self.display)
-        scroll.setWidgetResizable(True)
 
         # Set up our treeview
         self.treeview = MainTree(self.data, self.display)
 
         # Add both to the splitter
         splitter.addWidget(self.treeview)
-        splitter.addWidget(scroll)
+        splitter.addWidget(self.display)
 
         # Set our stretch factors, for when the window is resized
         splitter.setStretchFactor(0, 0)
@@ -146,6 +151,13 @@ class GUI(QtWidgets.QMainWindow):
 
         # Here we go!
         self.show()
+
+    def toggle_word_wrap(self):
+        do_wrap = self.toolbar.action_wrap.isChecked()
+        if do_wrap:
+            self.display.setWordWrapMode(QtGui.QTextOption.WrapAtWordBoundaryOrAnywhere)
+        else:
+            self.display.setWordWrapMode(QtGui.QTextOption.NoWrap)
 
 class Application(QtWidgets.QApplication):
     """
