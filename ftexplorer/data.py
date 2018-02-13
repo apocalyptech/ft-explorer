@@ -93,7 +93,6 @@ class Data(object):
                             # Always append the line
                             if not cur_obj:
                                 raise Exception('found data without having an object')
-                            #obj_data.append(line.rstrip())
                             obj_data.append(line)
 
         print('Done processing files')

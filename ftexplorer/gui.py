@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
 from . import data
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -175,10 +176,52 @@ class DataDisplay(QtWidgets.QTextEdit):
                                 chars.append(char)
                         output.append(''.join(chars))
             else:
-                output = self.node.data
+                output = [line for line in self.node.data]
+
+            # Apply syntax highlighting.  This is pretty hokey as well, but
+            # seems to work well enough.  Ideally we should be *actually*
+            # parsing things, but whatever.  Because we're just throwing a
+            # bunch of regexes at the text, the order is important; our
+            # conversion from <,> to &lt;,&gt; has to happen first, since
+            # otherwise it'd strip out the HTML we put in; and the quotes
+            # have to be processed next, as well.
+            do_syntax = self.parent.toolbar.action_syntax.isChecked()
+            for (idx, line) in enumerate(output):
+
+                # Get rid of anything which could be considered HTML by accident.
+                # (some descriptions, like GD_Aster_ClapTrapBeard.M_ClapTrapBeard, use
+                # HTML like <br>).  Do this regardless of syntax highlighting.
+                output[idx] = output[idx].replace('<', '&lt;')
+                output[idx] = output[idx].replace('>', '&gt;')
+
+                # Also turn any initial spaces into &nbsp;
+                space_count = 0
+                while output[idx][space_count] == ' ':
+                    space_count += 1
+                if space_count > 0:
+                    output[idx] = '{}{}'.format('&nbsp;'*space_count, output[idx][space_count:])
+
+                if do_syntax:
+
+                    # Colorize anything in quotes
+                    output[idx] = re.sub(r'"(.*?)"', r'<font color="goldenrod">"\1"</font>', output[idx])
+                    output[idx] = re.sub(r"'(.*?)'", '<font color="goldenrod">\'\\1\'</font>', output[idx])
+
+                    # Make the lefthand side of any assignment blue
+                    output[idx] = re.sub(r'^(\s+)([^=]+?)=', r'\1<font color="blue">\2</font>=', output[idx])
+
+                    # Section headers in green
+                    output[idx] = re.sub(r'^=== (.*) ===', r'<font color="darkgreen">=== \1 ===</font>', output[idx])
+
+                    # Numbers in red
+                    output[idx] = re.sub(r'\((\d+)\)', r'(<font color="darkred">\1</font>)', output[idx])
+                    output[idx] = re.sub(r'=([0-9\.]+)', r'=<font color="darkred">\1</font>', output[idx])
+
+                    # Booleans/Nones in purple, I guess
+                    output[idx] = re.sub(r'=(none|true|false)', r'=<font color="darkviolet">\1</font>', output[idx], flags=re.I)
 
             # Display
-            self.setText(''.join(output), clear_node=False)
+            self.setHtml('<br>'.join(output), clear_node=False)
 
 class MainToolBar(QtWidgets.QToolBar):
     """
@@ -195,6 +238,10 @@ class MainToolBar(QtWidgets.QToolBar):
         self.action_multiline = self.addAction('Multiline', parent.toggle_multiline)
         self.action_multiline.setCheckable(True)
         self.action_multiline.setChecked(True)
+
+        self.action_syntax = self.addAction('Syntax Highlighting', parent.toggle_syntax)
+        self.action_syntax.setCheckable(True)
+        self.action_syntax.setChecked(True)
 
 class GUI(QtWidgets.QMainWindow):
     """
@@ -252,6 +299,12 @@ class GUI(QtWidgets.QMainWindow):
     def toggle_multiline(self):
         """
         Toggle multiline output
+        """
+        self.display.updateText()
+
+    def toggle_syntax(self):
+        """
+        Toggle syntax highlighting
         """
         self.display.updateText()
 

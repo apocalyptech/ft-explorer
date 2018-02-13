@@ -52,7 +52,6 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
-* Syntax Highlighting
 * Ability to read resources right from the FilterTool zipfile.
 * *(could we instead bundle the dumps ourselves?  Will have to inquire with
   the FilterTool folks about redistributability)*
