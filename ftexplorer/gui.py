@@ -93,6 +93,7 @@ class DataDisplay(QtWidgets.QLabel):
         self.setLineWidth(2)
         self.setAutoFillBackground(True)
         self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+        self.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
 
         # Should figure out how to do this appropriately, rather than
         # just blindly lightening.
