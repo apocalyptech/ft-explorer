@@ -194,6 +194,7 @@ class MainToolBar(QtWidgets.QToolBar):
 
         self.action_multiline = self.addAction('Multiline', parent.toggle_multiline)
         self.action_multiline.setCheckable(True)
+        self.action_multiline.setChecked(True)
 
 class GUI(QtWidgets.QMainWindow):
     """
@@ -207,8 +208,8 @@ class GUI(QtWidgets.QMainWindow):
         self.data = data
 
         # Set some window properties 
-        self.setMinimumSize(500, 400)
-        self.resize(500, 400)
+        self.setMinimumSize(700, 500)
+        self.resize(700, 500)
         self.setWindowTitle('FT Explorer')
 
         # Load our toolbar
