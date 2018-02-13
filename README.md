@@ -56,6 +56,7 @@ Some things which are at least somewhat likely to happen:
 * *(could we instead bundle the dumps ourselves?  Will have to inquire with
   the FilterTool folks about redistributability)*
 * Selecting between B2 and TPS data
+* Remember settings between runs (which toggles are active, etc)
 
 Some things which are less likely to happen:
 
@@ -68,3 +69,9 @@ License
 
 This is licensed under the [3-clause BSD license](https://opensource.org/licenses/BSD-3-Clause).
 See [COPYING.txt](COPYING.txt).
+
+The "Dark Theme" is Michell Stuttgart Faria's
+[QDarkGray Stylesheet](https://github.com/mstuttgart/qdarkgray-stylesheet)
+with a few custom modifications.  QDarkGray Stylesheet is itself a rework of
+Colin Duquesnoy's [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet).
+It is available under the [MIT License](qdarkgraystyle/COPYING.txt).

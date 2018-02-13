@@ -27,6 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
+import qdarkgraystyle
 from . import data
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -85,6 +86,28 @@ class DataDisplay(QtWidgets.QTextEdit):
     """
     Display area for our data
     """
+
+    # Syntax Highlighting color definitions.
+    colors = {
+
+        # Default (light, probably) theme
+        False: {
+                'quotes': 'darkgoldenrod',
+                'names': 'mediumblue',
+                'headers': 'darkgreen',
+                'numbers': 'darkred',
+                'bools': 'darkviolet',
+            },
+
+        # Dark Theme
+        True: {
+                'quotes': 'palegoldenrod',
+                'names': 'lightblue',
+                'headers': 'lawngreen',
+                'numbers': 'palevioletred',
+                'bools': 'violet',
+            },
+        }
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -186,6 +209,7 @@ class DataDisplay(QtWidgets.QTextEdit):
             # otherwise it'd strip out the HTML we put in; and the quotes
             # have to be processed next, as well.
             do_syntax = self.parent.toolbar.action_syntax.isChecked()
+            colors = self.colors[self.parent.toolbar.action_dark.isChecked()]
             for (idx, line) in enumerate(output):
 
                 # Get rid of anything which could be considered HTML by accident.
@@ -194,31 +218,54 @@ class DataDisplay(QtWidgets.QTextEdit):
                 output[idx] = output[idx].replace('<', '&lt;')
                 output[idx] = output[idx].replace('>', '&gt;')
 
-                # Also turn any initial spaces into &nbsp;
+                if do_syntax:
+
+                    # Colorize anything in quotes
+                    output[idx] = re.sub(
+                            r'"(.*?)"',
+                            r'<font color="{}">"\1"</font>'.format(colors['quotes']),
+                            output[idx])
+                    output[idx] = re.sub(
+                            r"'(.*?)'",
+                            '<font color="{}">\'\\1\'</font>'.format(colors['quotes']),
+                            output[idx])
+
+                    # Make the lefthand side of any assignment blue
+                    output[idx] = re.sub(
+                            r'^(\s+)([^=]+?)=',
+                            r'\1<font color="{}">\2</font>='.format(colors['names']),
+                            output[idx])
+
+                    # Section headers in green
+                    output[idx] = re.sub(
+                            r'^=== (.*) ===',
+                            r'<font color="{}">=== \1 ===</font>'.format(colors['headers']),
+                            output[idx])
+
+                    # Numbers in red
+                    output[idx] = re.sub(
+                            r'\((\d+)\)',
+                            r'(<font color="{}">\1</font>)'.format(colors['numbers']),
+                            output[idx])
+                    output[idx] = re.sub(
+                            r'=(-?[0-9\.]+)',
+                            r'=<font color="{}">\1</font>'.format(colors['numbers']),
+                            output[idx])
+
+                    # Booleans/Nones in purple, I guess
+                    output[idx] = re.sub(
+                            r'=(none|true|false)',
+                            r'=<font color="{}">\1</font>'.format(colors['bools']),
+                            output[idx],
+                            flags=re.I)
+
+                # Also turn any initial spaces into &nbsp;  Do this regardless
+                # of syntax highlighting
                 space_count = 0
                 while output[idx][space_count] == ' ':
                     space_count += 1
                 if space_count > 0:
                     output[idx] = '{}{}'.format('&nbsp;'*space_count, output[idx][space_count:])
-
-                if do_syntax:
-
-                    # Colorize anything in quotes
-                    output[idx] = re.sub(r'"(.*?)"', r'<font color="goldenrod">"\1"</font>', output[idx])
-                    output[idx] = re.sub(r"'(.*?)'", '<font color="goldenrod">\'\\1\'</font>', output[idx])
-
-                    # Make the lefthand side of any assignment blue
-                    output[idx] = re.sub(r'^(\s+)([^=]+?)=', r'\1<font color="blue">\2</font>=', output[idx])
-
-                    # Section headers in green
-                    output[idx] = re.sub(r'^=== (.*) ===', r'<font color="darkgreen">=== \1 ===</font>', output[idx])
-
-                    # Numbers in red
-                    output[idx] = re.sub(r'\((\d+)\)', r'(<font color="darkred">\1</font>)', output[idx])
-                    output[idx] = re.sub(r'=(-?[0-9\.]+)', r'=<font color="darkred">\1</font>', output[idx])
-
-                    # Booleans/Nones in purple, I guess
-                    output[idx] = re.sub(r'=(none|true|false)', r'=<font color="darkviolet">\1</font>', output[idx], flags=re.I)
 
             # Display
             self.setHtml('<br>'.join(output), clear_node=False)
@@ -231,6 +278,9 @@ class MainToolBar(QtWidgets.QToolBar):
     def __init__(self, parent):
 
         super().__init__(parent)
+
+        self.action_dark = self.addAction('Dark Theme', parent.toggle_dark)
+        self.action_dark.setCheckable(True)
 
         self.action_wrap = self.addAction('Word Wrap', parent.toggle_word_wrap)
         self.action_wrap.setCheckable(True)
@@ -248,11 +298,12 @@ class GUI(QtWidgets.QMainWindow):
     Main application window
     """
 
-    def __init__(self, data):
+    def __init__(self, data, app):
         super().__init__()
 
         # Store our data
         self.data = data
+        self.app = app
 
         # Set some window properties 
         self.setMinimumSize(700, 500)
@@ -308,6 +359,17 @@ class GUI(QtWidgets.QMainWindow):
         """
         self.display.updateText()
 
+    def toggle_dark(self):
+        """
+        Toggles our dark theme
+        """
+        do_dark = self.toolbar.action_dark.isChecked()
+        if do_dark:
+            self.app.setStyleSheet(qdarkgraystyle.load_stylesheet_pyqt5())
+        else:
+            self.app.setStyleSheet('')
+        self.display.updateText()
+
 class Application(QtWidgets.QApplication):
     """
     Main application
@@ -320,4 +382,4 @@ class Application(QtWidgets.QApplication):
 
         super().__init__([])
         self.data = data.Data()
-        self.app = GUI(self.data)
+        self.app = GUI(self.data, self)
