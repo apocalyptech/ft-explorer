@@ -56,6 +56,9 @@ convinced to spend some more effort on it.
 Some things which are at least somewhat likely to happen:
 
 * Nothin'!  This app is currently feature-complete from my initial goals.
+* We'll see what becomes of this once BLCMM (the successor to FilterTool)
+  comes out.  It's possible that BLCMM may totally obsolete this, but
+  I suspect I'll probably update it with the updated dataset anyway.
 
 Some things which are less likely to happen:
 
