@@ -55,7 +55,6 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
-* Selecting between B2 and TPS data
 * Remember settings between runs (which toggles are active, etc)
 
 Some things which are less likely to happen:

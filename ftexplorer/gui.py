@@ -52,6 +52,15 @@ class MainTree(QtWidgets.QTreeView):
         self.model = QtGui.QStandardItemModel()
         self.setModel(self.model)
 
+        self.load_data(data)
+
+    def load_data(self, data):
+        """
+        Loads the given dataset
+        """
+
+        self.model.clear()
+        self.data = data
         for item in self.data:
             self.add_to_tree(item, self.model)
 
@@ -112,8 +121,7 @@ class DataDisplay(QtWidgets.QTextEdit):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.node = None
-        self.setText('(nothing selected)')
+        self.initial_display()
         self.setReadOnly(True)
 
         # Use a Monospaced font
@@ -123,6 +131,13 @@ class DataDisplay(QtWidgets.QTextEdit):
 
         # Default to not word-wrapping
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
+
+    def initial_display(self):
+        """
+        Clears out output
+        """
+        self.node = None
+        self.setText('(nothing selected)')
 
     def setText(self, text, clear_node=True):
         """
@@ -270,12 +285,34 @@ class DataDisplay(QtWidgets.QTextEdit):
             # Display
             self.setHtml('<br>'.join(output), clear_node=False)
 
+class GameSelect(QtWidgets.QComboBox):
+    """
+    ComboBox to switch between BL2 and TPS data
+    """
+
+    def __init__(self, parent, maingui, data_bl2, data_tps):
+        super().__init__(parent)
+        self.maingui = maingui
+        self.data_bl2 = data_bl2
+        self.data_tps = data_tps
+        self.addItem('Borderlands 2', data_bl2)
+        self.addItem('Pre-Sequel', data_tps)
+        self.setCurrentIndex(0)
+        self.currentIndexChanged.connect(self.index_changed)
+        self.setSizeAdjustPolicy(self.AdjustToContents)
+
+    def index_changed(self, index):
+        """
+        User selected a new game
+        """
+        self.maingui.switch_game(self.currentData())
+
 class MainToolBar(QtWidgets.QToolBar):
     """
     Toolbar to hold a few toggles for us
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, data_bl2, data_tps):
 
         super().__init__(parent)
 
@@ -292,6 +329,16 @@ class MainToolBar(QtWidgets.QToolBar):
         self.action_syntax = self.addAction('Syntax Highlighting', parent.toggle_syntax)
         self.action_syntax.setCheckable(True)
         self.action_syntax.setChecked(True)
+
+        # Spacer, after which everything else will be right-aligned
+        spacer_label = QtWidgets.QLabel()
+        spacer_label.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.addWidget(spacer_label)
+
+        # Game selection
+        self.game_select = GameSelect(self, parent, data_bl2, data_tps)
+        self.game_select.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        self.addWidget(self.game_select)
 
 class GUI(QtWidgets.QMainWindow):
     """
@@ -312,7 +359,7 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle('FT Explorer')
 
         # Load our toolbar
-        self.toolbar = MainToolBar(self)
+        self.toolbar = MainToolBar(self, data_bl2, data_tps)
         self.addToolBar(self.toolbar)
 
         # Set up a QSplitter
@@ -370,6 +417,14 @@ class GUI(QtWidgets.QMainWindow):
         else:
             self.app.setStyleSheet('')
         self.display.updateText()
+
+    def switch_game(self, data):
+        """
+        Switches to the game data contained in `data`.  Called
+        from our GameSelect combo box
+        """
+        self.treeview.load_data(data)
+        self.display.initial_display()
 
 class Application(QtWidgets.QApplication):
     """
