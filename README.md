@@ -28,9 +28,9 @@ Usage
 Simply run `ft-explorer.py` and it should do its thing.
 
 The data from UCP FilterTool 2.2 is bundled with the application, so there is
-no need to copy anything over.  The app will load any file in the
+no need to copy anything over.  The app will load any files in the
 `resources/BL2/dumps` and `resources/TPS/dumps` directories which start with
-"`Resource - `" and has a `.txt` or `.txt.xz`
+"`Resource - `" and have a `.txt` or `.txt.xz`
 *([lzma/lzma2 compression](https://en.wikipedia.org/wiki/Xz))* extension.
 
 Feel free to add your own dump files in there, if what you're looking for
