@@ -298,11 +298,12 @@ class GUI(QtWidgets.QMainWindow):
     Main application window
     """
 
-    def __init__(self, data, app):
+    def __init__(self, data_bl2, data_tps, app):
         super().__init__()
 
         # Store our data
-        self.data = data
+        self.data_bl2 = data_bl2
+        self.data_tps = data_tps
         self.app = app
 
         # Set some window properties 
@@ -321,7 +322,7 @@ class GUI(QtWidgets.QMainWindow):
         self.display = DataDisplay(self)
 
         # Set up our treeview
-        self.treeview = MainTree(self, self.data, self.display)
+        self.treeview = MainTree(self, self.data_bl2, self.display)
 
         # Add both to the splitter
         splitter.addWidget(self.treeview)
@@ -381,5 +382,6 @@ class Application(QtWidgets.QApplication):
         """
 
         super().__init__([])
-        self.data = data.Data()
-        self.app = GUI(self.data, self)
+        data_bl2 = data.Data('BL2')
+        data_tps = data.Data('TPS')
+        self.app = GUI(data_bl2, data_tps, self)

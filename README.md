@@ -25,19 +25,22 @@ it in a tree, like UE Explorer would do.
 Usage
 -----
 
-This utility requires that all of FilterTool's resource files be stored in
-the `resources` directory alongside `ft-explorer.py`.  You can extract
-them from `FilterTool.jar` with probably any unzip program, or with the
-`jar` utility, if you're feeling fancy.
+Simply run `ft-explorer.py` and it should do its thing.
 
-Simply run `ft-explorer.py` and it should do its thing.  It'll load any
-file in the `resources` dir which starts with "`Resource - `" and has
-a `.txt` extension.
+The data from UCP FilterTool 2.2 is bundled with the application, so there is
+no need to copy anything over.  The app will load any file in the
+`resources/BL2/dumps` and `resources/TPS/dumps` directories which start with
+"`Resource - `" and has a `.txt` or `.txt.xz`
+*([lzma/lzma2 compression](https://en.wikipedia.org/wiki/Xz))* extension.
 
-This is only tested on Linux, and uses Python 3 and PyQt5 to do its stuff.
-If running on Windows or OSX, be sure to have those installed, and launch
-it from a terminal/commandline of some sort to see any errors which might
-pop up.
+Feel free to add your own dump files in there, if what you're looking for
+isn't already bundled with FilterTool.  I've added a very small amount of
+extra data inside the BL2 file `Resources - FTExplorerAdditions.txt.xz`.
+
+This is only tested on Linux, though I've had reports of it working fine
+on Windows as well.  It uses Python 3 and PyQt5 to do its stuff.  If running
+on Windows or OSX, be sure to have those installed, and launch it from a
+terminal/commandline of some sort to see any errors which might pop up.
 
 Status
 ------
@@ -52,9 +55,6 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
-* Ability to read resources right from the FilterTool zipfile.
-* *(could we instead bundle the dumps ourselves?  Will have to inquire with
-  the FilterTool folks about redistributability)*
 * Selecting between B2 and TPS data
 * Remember settings between runs (which toggles are active, etc)
 
@@ -63,6 +63,13 @@ Some things which are less likely to happen:
 * Proper packaging *(for any platform)*
 * Searching
 * Fancy icons and stuff in the tree
+
+Credits
+-------
+
+The bundled pre-dumped object data is taken from UCP FilterTool, by
+[LightChaosman](https://www.youtube.com/channel/UCgJ6TA5sZ_Rwc1LPDYbQT1Q), and
+is included with their gracious consent.
 
 License
 -------
@@ -75,3 +82,7 @@ The "Dark Theme" is Michell Stuttgart Faria's
 with a few custom modifications.  QDarkGray Stylesheet is itself a rework of
 Colin Duquesnoy's [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet).
 It is available under the [MIT License](qdarkgraystyle/COPYING.txt).
+
+Redistribution of the bundled data in the `resources` directory should be
+cleared with LightChaosman first.  Try the
+[Shadow's Evil Hideout discord channel](https://discord.gg/0YjZxbVBS9b3bXUS).

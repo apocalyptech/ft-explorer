@@ -29,6 +29,7 @@
 import os
 import re
 import sys
+import lzma
 
 class Node(object):
     """
@@ -70,16 +71,25 @@ class Data(object):
     Top-level data object to hold everything we're interested in.
     """
 
-    def __init__(self):
+    def __init__(self, game):
 
         self.top = Node('')
 
-        #with open('resources/Resource - InventoryPartListCollectionDefinition.txt', 'r') as df:
-        with os.scandir('resources') as it:
+        with os.scandir(os.path.join('resources', game, 'dumps')) as it:
             for entry in it:
-                if entry.name[:11] == 'Resource - ' and entry.name[-4:] == '.txt':
-                    print('Processing resource file: {}'.format(entry.name))
-                    with open(entry.path, 'r') as df:
+                if entry.name[:11] == 'Resource - ' and (entry.name[-4:] == '.txt' or
+                        entry.name[-7:] == '.txt.xz'):
+
+                    print('Processing {} resource file: {}'.format(game, entry.name))
+
+                    # If we're reading an .xz file, uncompress it while reading
+                    if '.txt.xz' in entry.name:
+                        openfunc = lambda p: lzma.open(p, 'rt', encoding='latin1')
+                    else:
+                        openfunc = lambda p: open(p, 'rt', encoding='latin1')
+
+                    # Now read it
+                    with openfunc(entry.path) as df:
                         cur_obj = None
                         obj_type = None
                         obj_data = []
@@ -95,7 +105,7 @@ class Data(object):
                                 raise Exception('found data without having an object')
                             obj_data.append(line)
 
-        print('Done processing files')
+        print('Done processing {} files'.format(game))
 
     def __getitem__(self, item):
         """
