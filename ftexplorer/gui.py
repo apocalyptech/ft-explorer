@@ -297,7 +297,10 @@ class GameSelect(QtWidgets.QComboBox):
         self.data_tps = data_tps
         self.addItem('Borderlands 2', data_bl2)
         self.addItem('Pre-Sequel', data_tps)
-        self.setCurrentIndex(0)
+        if self.maingui.settings.value('toggles/game', 'bl2') == 'bl2':
+            self.setCurrentIndex(0)
+        else:
+            self.setCurrentIndex(1)
         self.currentIndexChanged.connect(self.index_changed)
         self.setSizeAdjustPolicy(self.AdjustToContents)
 
@@ -305,6 +308,10 @@ class GameSelect(QtWidgets.QComboBox):
         """
         User selected a new game
         """
+        if index == 0:
+            self.maingui.settings.setValue('toggles/game', 'bl2')
+        else:
+            self.maingui.settings.setValue('toggles/game', 'tps')
         self.maingui.switch_game(self.currentData())
 
 class MainToolBar(QtWidgets.QToolBar):
@@ -318,17 +325,19 @@ class MainToolBar(QtWidgets.QToolBar):
 
         self.action_dark = self.addAction('Dark Theme', parent.toggle_dark)
         self.action_dark.setCheckable(True)
+        self.action_dark.setChecked(parent.settings.value('toggles/darktheme', False, type=bool))
 
         self.action_wrap = self.addAction('Word Wrap', parent.toggle_word_wrap)
         self.action_wrap.setCheckable(True)
+        self.action_wrap.setChecked(parent.settings.value('toggles/wordwrap', False, type=bool))
 
         self.action_multiline = self.addAction('Multiline', parent.toggle_multiline)
         self.action_multiline.setCheckable(True)
-        self.action_multiline.setChecked(True)
+        self.action_multiline.setChecked(parent.settings.value('toggles/multiline', True, type=bool))
 
         self.action_syntax = self.addAction('Syntax Highlighting', parent.toggle_syntax)
         self.action_syntax.setCheckable(True)
-        self.action_syntax.setChecked(True)
+        self.action_syntax.setChecked(parent.settings.value('toggles/syntax', True, type=bool))
 
         # Spacer, after which everything else will be right-aligned
         spacer_label = QtWidgets.QLabel()
@@ -345,10 +354,11 @@ class GUI(QtWidgets.QMainWindow):
     Main application window
     """
 
-    def __init__(self, data_bl2, data_tps, app):
+    def __init__(self, settings, data_bl2, data_tps, app):
         super().__init__()
 
         # Store our data
+        self.settings = settings
         self.data_bl2 = data_bl2
         self.data_tps = data_tps
         self.app = app
@@ -369,7 +379,11 @@ class GUI(QtWidgets.QMainWindow):
         self.display = DataDisplay(self)
 
         # Set up our treeview
-        self.treeview = MainTree(self, self.data_bl2, self.display)
+        if self.settings.value('toggles/game', 'bl2') == 'bl2':
+            data = self.data_bl2
+        else:
+            data = self.data_tps
+        self.treeview = MainTree(self, data, self.display)
 
         # Add both to the splitter
         splitter.addWidget(self.treeview)
@@ -382,6 +396,12 @@ class GUI(QtWidgets.QMainWindow):
         # Use the splitter as our main widget
         self.setCentralWidget(splitter)
 
+        # Call out to a couple toggle functions, so that we're
+        # applying our saved QSettings.  There's more elegant ways
+        # to be doing this, but whatever.
+        self.toggle_word_wrap()
+        self.toggle_dark()
+
         # Here we go!
         self.show()
 
@@ -390,6 +410,7 @@ class GUI(QtWidgets.QMainWindow):
         Toggle word wrapping
         """
         do_wrap = self.toolbar.action_wrap.isChecked()
+        self.settings.setValue('toggles/wordwrap', do_wrap)
         if do_wrap:
             self.display.setWordWrapMode(QtGui.QTextOption.WrapAtWordBoundaryOrAnywhere)
         else:
@@ -399,12 +420,14 @@ class GUI(QtWidgets.QMainWindow):
         """
         Toggle multiline output
         """
+        self.settings.setValue('toggles/multiline', self.toolbar.action_multiline.isChecked())
         self.display.updateText()
 
     def toggle_syntax(self):
         """
         Toggle syntax highlighting
         """
+        self.settings.setValue('toggles/syntax', self.toolbar.action_syntax.isChecked())
         self.display.updateText()
 
     def toggle_dark(self):
@@ -412,6 +435,7 @@ class GUI(QtWidgets.QMainWindow):
         Toggles our dark theme
         """
         do_dark = self.toolbar.action_dark.isChecked()
+        self.settings.setValue('toggles/darktheme', do_dark)
         if do_dark:
             self.app.setStyleSheet(qdarkgraystyle.load_stylesheet_pyqt5())
         else:
@@ -437,6 +461,7 @@ class Application(QtWidgets.QApplication):
         """
 
         super().__init__([])
+        settings = QtCore.QSettings('Apocalyptech', 'FT Explorer')
         data_bl2 = data.Data('BL2')
         data_tps = data.Data('TPS')
-        self.app = GUI(data_bl2, data_tps, self)
+        self.app = GUI(settings, data_bl2, data_tps, self)

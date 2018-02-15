@@ -55,13 +55,16 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
-* Remember settings between runs (which toggles are active, etc)
+* Nothin'!  This app is currently feature-complete from my initial goals.
 
 Some things which are less likely to happen:
 
 * Proper packaging *(for any platform)*
-* Searching
 * Fancy icons and stuff in the tree
+
+Some things which are absolutely not going to happen:
+
+* Searching *(FilterTool already does a great job at this)*
 
 Credits
 -------
