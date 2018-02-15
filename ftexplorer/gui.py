@@ -368,6 +368,10 @@ class GUI(QtWidgets.QMainWindow):
         self.resize(700, 500)
         self.setWindowTitle('FT Explorer')
 
+        # Set up Ctrl-Q to quit
+        shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Q), self)
+        shortcut.activated.connect(self.action_quit)
+
         # Load our toolbar
         self.toolbar = MainToolBar(self, data_bl2, data_tps)
         self.addToolBar(self.toolbar)
@@ -404,6 +408,12 @@ class GUI(QtWidgets.QMainWindow):
 
         # Here we go!
         self.show()
+
+    def action_quit(self):
+        """
+        Exit the app
+        """
+        self.close()
 
     def toggle_word_wrap(self):
         """
