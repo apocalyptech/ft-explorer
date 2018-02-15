@@ -380,7 +380,7 @@ class GUI(QtWidgets.QMainWindow):
         self.addToolBar(self.toolbar)
 
         # Set up a QSplitter
-        splitter = QtWidgets.QSplitter()
+        self.splitter = QtWidgets.QSplitter()
 
         # Set up our display area and add it to the hbox
         self.display = DataDisplay(self)
@@ -393,21 +393,27 @@ class GUI(QtWidgets.QMainWindow):
         self.treeview = MainTree(self, data, self.display)
 
         # Add both to the splitter
-        splitter.addWidget(self.treeview)
-        splitter.addWidget(self.display)
+        self.splitter.addWidget(self.treeview)
+        self.splitter.addWidget(self.display)
 
         # Set our stretch factors, for when the window is resized
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
 
         # Use the splitter as our main widget
-        self.setCentralWidget(splitter)
+        self.setCentralWidget(self.splitter)
 
         # Call out to a couple toggle functions, so that we're
         # applying our saved QSettings.  There's more elegant ways
         # to be doing this, but whatever.
         self.toggle_word_wrap()
         self.toggle_dark()
+
+        # Now that everything's set up, restore our splitter settings,
+        # if we have any.
+        splitter_settings = self.settings.value('mainwindow/splitter')
+        if splitter_settings:
+            self.splitter.restoreState(splitter_settings)
 
         # Here we go!
         self.show()
@@ -417,6 +423,14 @@ class GUI(QtWidgets.QMainWindow):
         Exit the app
         """
         self.close()
+
+    def closeEvent(self, event):
+        """
+        Save our window state; used when the app is closing.
+        """
+        self.settings.setValue('mainwindow/width', self.size().width())
+        self.settings.setValue('mainwindow/height', self.size().height())
+        self.settings.setValue('mainwindow/splitter', self.splitter.saveState())
 
     def toggle_word_wrap(self):
         """
@@ -462,14 +476,6 @@ class GUI(QtWidgets.QMainWindow):
         """
         self.treeview.load_data(data)
         self.display.initial_display()
-
-    def resizeEvent(self, event):
-        """
-        Handle window resizing
-        """
-        super().resizeEvent(event)
-        self.settings.setValue('mainwindow/width', event.size().width())
-        self.settings.setValue('mainwindow/height', event.size().height())
 
 class Application(QtWidgets.QApplication):
     """
