@@ -365,7 +365,10 @@ class GUI(QtWidgets.QMainWindow):
 
         # Set some window properties 
         self.setMinimumSize(700, 500)
-        self.resize(700, 500)
+        self.resize(
+            self.settings.value('mainwindow/width', 700, type=int),
+            self.settings.value('mainwindow/height', 500, type=int)
+            )
         self.setWindowTitle('FT Explorer')
 
         # Set up Ctrl-Q to quit
@@ -459,6 +462,14 @@ class GUI(QtWidgets.QMainWindow):
         """
         self.treeview.load_data(data)
         self.display.initial_display()
+
+    def resizeEvent(self, event):
+        """
+        Handle window resizing
+        """
+        super().resizeEvent(event)
+        self.settings.setValue('mainwindow/width', event.size().width())
+        self.settings.setValue('mainwindow/height', event.size().height())
 
 class Application(QtWidgets.QApplication):
     """
