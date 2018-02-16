@@ -22,10 +22,32 @@ which UE Explorer provides.
 So, enter this app!  It takes the FilterTool pre-dumped data and presents
 it in a tree, like UE Explorer would do.
 
+Requirements
+------------
+
+This is a Python 3 + PyQt5 application.  It's been developed entirely on
+Linux, but it works just fine in Windows (and should in Mac as well) so long as
+you've got the necessary stuff installed, though Linux folks will have the
+easiest time of it.
+
+**Linux:** You probably already have these installed via your package manager,
+but if not, just use your package manger to install a package named something
+like `python-pyqt5` or `pyqt5` or the like, and that should take care of it
+for you.
+
+**Windows/Mac:** Install the latest Python 3.x.x version from
+[python.org](https://www.python.org/downloads/).  Hop out to a commandline or
+terminal and see if running the command `python -V` outputs something like
+`Python 3.6.4`.  If so, try just running `pip install PyQt5` or `pip3 install
+PyQt5`.  If that seemed to work, you may be good to go at that point!  I'm
+afraid I can't help out much with install issues on Windows, though.
+
 Usage
 -----
 
-Simply run `ft-explorer.py` and it should do its thing.
+Simply run `ft-explorer.py` and it should do its thing.  If that's not
+working, try running it from a commandline/terminal/console, to see if it's
+printing out any error messages.
 
 The data from UCP FilterTool 2.2 is bundled with the application, so there is
 no need to copy anything over.  The app will load any files in the
@@ -37,10 +59,6 @@ Feel free to add your own dump files in there, if what you're looking for
 isn't already bundled with FilterTool.  I've added a very small amount of
 extra data inside the BL2 file `Resources - FTExplorerAdditions.txt.xz`.
 
-This is only tested on Linux, though I've had reports of it working fine
-on Windows as well.  It uses Python 3 and PyQt5 to do its stuff.  If running
-on Windows or OSX, be sure to have those installed, and launch it from a
-terminal/commandline of some sort to see any errors which might pop up.
 
 Status
 ------
