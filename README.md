@@ -30,7 +30,7 @@ Linux, but it works just fine in Windows (and should in Mac as well) so long as
 you've got the necessary stuff installed, though Linux folks will have the
 easiest time of it.
 
-**Linux:** You probably already have these installed via your package manager,
+**Linux:** You may already have these installed via your package manager,
 but if not, just use your package manger to install a package named something
 like `python-pyqt5` or `pyqt5` or the like, and that should take care of it
 for you.
@@ -82,6 +82,10 @@ Some things which are less likely to happen:
 
 * Proper packaging *(for any platform)*
 * Fancy icons and stuff in the tree
+* While I have no intention of adding searching to the app, it *would*
+  be useful to at least be able to `Ctrl-F` while looking at an object and
+  be able to search within the displayed text.  I suspect that may be
+  more work than I'm willing to put in, but it's a tempting thought...
 
 Some things which are absolutely not going to happen:
 
