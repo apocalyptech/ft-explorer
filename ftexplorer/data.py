@@ -83,11 +83,14 @@ class Node(object):
         if self.loaded or not self.has_data:
             return self.data
         if self.filename:
-            with lzma.open(os.path.join('resources', self.game, 'dumps', self.filename), 'rb') as df:
-                df.seek(self.pos_start)
-                self.data = df.read(self.length).decode('latin1').splitlines()
-                self.loaded = True
-                return self.data
+            try:
+                with lzma.open(os.path.join('resources', self.game, 'dumps', self.filename), 'rb') as df:
+                    df.seek(self.pos_start)
+                    self.data = df.read(self.length).decode('latin1').splitlines()
+                    self.loaded = True
+                    return self.data
+            except Exception as e:
+                return ['ERROR!  Could not load data: {}'.format(str(e))]
 
 class Data(object):
     """
