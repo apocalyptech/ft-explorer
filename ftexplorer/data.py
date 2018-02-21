@@ -59,7 +59,7 @@ class Node(object):
             self.child_keys = sorted(self.children.keys(), key=str.lower)
         return self.children[self.child_keys[item]]
 
-    def start_data(self, obj_name_parts, filename, pos_start, length):
+    def start_data(self, obj_name_parts, game, filename, pos_start, length):
         """
         Starts recording data for the specified object.
         Returns a list which can be appended to
@@ -68,12 +68,13 @@ class Node(object):
             self.filename = filename
             self.pos_start = pos_start
             self.length = length
+            self.game = game
             self.has_data = True
             self.data = []
             return self.data
         if obj_name_parts[0] not in self.children:
             self.children[obj_name_parts[0]] = Node(obj_name_parts[0])
-        return self.children[obj_name_parts[0]].start_data(obj_name_parts[1:], filename, pos_start, length)
+        return self.children[obj_name_parts[0]].start_data(obj_name_parts[1:], game, filename, pos_start, length)
 
     def load(self):
         """
@@ -82,7 +83,7 @@ class Node(object):
         if self.loaded or not self.has_data:
             return self.data
         if self.filename:
-            with lzma.open(self.filename, 'rb') as df:
+            with lzma.open(os.path.join('resources', self.game, 'dumps', self.filename), 'rb') as df:
                 df.seek(self.pos_start)
                 self.data = df.read(self.length).decode('latin1').splitlines()
                 self.loaded = True
@@ -108,7 +109,8 @@ class Data(object):
         for (obj_name, obj_data) in self.index.items():
             parts = re.split('[\.:]', obj_name)
             self.top.start_data(parts,
-                    filename=os.path.join('resources', game, 'dumps', obj_data[0]),
+                    game=game,
+                    filename=obj_data[0],
                     pos_start=obj_data[1],
                     length=obj_data[2])
 
