@@ -84,7 +84,7 @@ class MainTree(QtWidgets.QTreeView):
         super().selectionChanged(selected, deselected)
         if len(selected.indexes()) > 0:
             node = selected.indexes()[0].data(self.object_role)
-            if len(node.data) > 0:
+            if node.has_data:
                 self.display.setNode(node)
             else:
                 self.display.setText('(no data)')
@@ -183,7 +183,7 @@ class DataDisplay(QtWidgets.QTextEdit):
             if do_multiline:
                 # This is all pretty hacky, but seems to work fine.
                 output = []
-                for line in self.node.data:
+                for line in self.node.load():
                     indent_level = 0
                     parts = line.split('=', 1)
                     if len(parts) == 1:
@@ -214,7 +214,7 @@ class DataDisplay(QtWidgets.QTextEdit):
                                 chars.append(char)
                         output.append(''.join(chars))
             else:
-                output = [line for line in self.node.data]
+                output = [line for line in self.node.load()]
 
             # Apply syntax highlighting.  This is pretty hokey as well, but
             # seems to work well enough.  Ideally we should be *actually*
@@ -235,21 +235,24 @@ class DataDisplay(QtWidgets.QTextEdit):
 
                 if do_syntax:
 
+                    # See if we have an assignment of some sort in here
+                    have_assignment = '=' in output[idx]
+
                     # Colorize anything in quotes
+                    dostuff = False
+                    if self.node.name == 'WillowWaypoint_6' and 'KillJackSet' in output[idx]:
+                        dostuff = True
                     output[idx] = re.sub(
-                            r'"(.*?)"',
-                            r'<font color="{}">"\1"</font>'.format(colors['quotes']),
-                            output[idx])
-                    output[idx] = re.sub(
-                            r"'(.*?)'",
-                            '<font color="{}">\'\\1\'</font>'.format(colors['quotes']),
+                            '(["\'])(.*?)\\1',
+                            r'<font color="{}">\1\2\1</font>'.format(colors['quotes']),
                             output[idx])
 
                     # Make the lefthand side of any assignment blue
-                    output[idx] = re.sub(
-                            r'^(\s+)([^=]+?)=',
-                            r'\1<font color="{}">\2</font>='.format(colors['names']),
-                            output[idx])
+                    if have_assignment:
+                        output[idx] = re.sub(
+                                r'^(\s+)([^=]+?)=',
+                                r'\1<font color="{}">\2</font>='.format(colors['names']),
+                                output[idx])
 
                     # Section headers in green
                     output[idx] = re.sub(
@@ -277,8 +280,11 @@ class DataDisplay(QtWidgets.QTextEdit):
                 # Also turn any initial spaces into &nbsp;  Do this regardless
                 # of syntax highlighting
                 space_count = 0
-                while output[idx][space_count] == ' ':
-                    space_count += 1
+                for char in output[idx]:
+                    if char == ' ':
+                        space_count += 1
+                    else:
+                        break
                 if space_count > 0:
                     output[idx] = '{}{}'.format('&nbsp;'*space_count, output[idx][space_count:])
 

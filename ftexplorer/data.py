@@ -30,15 +30,20 @@ import os
 import re
 import sys
 import lzma
+import json
 
 class Node(object):
     """
     A node in our tree
     """
 
-    def __init__(self, name, obj_type=None):
+    def __init__(self, name):
         self.name = name
-        self.obj_type = obj_type
+        self.filename = None
+        self.pos_start = 0
+        self.length = 0
+        self.loaded = False
+        self.has_data = False
         self.data = []
         self.child_keys = None
         self.children = {}
@@ -54,17 +59,34 @@ class Node(object):
             self.child_keys = sorted(self.children.keys(), key=str.lower)
         return self.children[self.child_keys[item]]
 
-    def start_data(self, obj_name_parts, obj_type):
+    def start_data(self, obj_name_parts, filename, pos_start, length):
         """
         Starts recording data for the specified object.
         Returns a list which can be appended to
         """
         if len(obj_name_parts) == 0:
-            self.obj_type = obj_type
+            self.filename = filename
+            self.pos_start = pos_start
+            self.length = length
+            self.has_data = True
+            self.data = []
             return self.data
         if obj_name_parts[0] not in self.children:
             self.children[obj_name_parts[0]] = Node(obj_name_parts[0])
-        return self.children[obj_name_parts[0]].start_data(obj_name_parts[1:], obj_type)
+        return self.children[obj_name_parts[0]].start_data(obj_name_parts[1:], filename, pos_start, length)
+
+    def load(self):
+        """
+        Loads ourselves from our data file
+        """
+        if self.loaded or not self.has_data:
+            return self.data
+        if self.filename:
+            with lzma.open(self.filename, 'rb') as df:
+                df.seek(self.pos_start)
+                self.data = df.read(self.length).decode('latin1').splitlines()
+                self.loaded = True
+                return self.data
 
 class Data(object):
     """
@@ -75,37 +97,20 @@ class Data(object):
 
         self.top = Node('')
 
-        with os.scandir(os.path.join('resources', game, 'dumps')) as it:
-            for entry in it:
-                if entry.name[:11] == 'Resource - ' and (entry.name[-4:] == '.txt' or
-                        entry.name[-7:] == '.txt.xz'):
+        # Read in our index
+        index_filename = os.path.join('resources', game, 'dumps', 'index.json.xz')
+        self.index = {}
+        if os.path.exists(index_filename):
+            with lzma.open(index_filename, 'rt') as df:
+                self.index = json.load(df)
 
-                    print('Processing {} resource file: {}'.format(game, entry.name))
-
-                    # If we're reading an .xz file, uncompress it while reading
-                    if '.txt.xz' in entry.name:
-                        openfunc = lambda p: lzma.open(p, 'rt', encoding='latin1')
-                    else:
-                        openfunc = lambda p: open(p, 'rt', encoding='latin1')
-
-                    # Now read it
-                    with openfunc(entry.path) as df:
-                        cur_obj = None
-                        obj_type = None
-                        obj_data = []
-                        for line in df.readlines():
-
-                            if line[:29] == '*** Property dump for object ':
-                                (obj_type, cur_obj) = line[30:-6].split(' ', 1)
-                                parts = re.split('[\.:]', cur_obj)
-                                obj_data = self.top.start_data(parts, obj_type)
-
-                            # Always append the line
-                            if not cur_obj:
-                                raise Exception('found data without having an object')
-                            obj_data.append(line)
-
-        print('Done processing {} files'.format(game))
+        # Populate our basic node tree
+        for (obj_name, obj_data) in self.index.items():
+            parts = re.split('[\.:]', obj_name)
+            self.top.start_data(parts,
+                    filename=os.path.join('resources', game, 'dumps', obj_data[0]),
+                    pos_start=obj_data[1],
+                    length=obj_data[2])
 
     def __getitem__(self, item):
         """
