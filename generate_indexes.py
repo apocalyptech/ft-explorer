@@ -54,6 +54,7 @@ import json
 #   1) Filename
 #   2) Start position (uncompressed)
 #   3) Length (uncompressed
+#   4) A list defining exactly where the item should live in the tree
 
 out_file = 'index.json.xz'
 min_collapse_count = 2
@@ -147,12 +148,6 @@ for game in ['BL2', 'TPS']:
         if len(name_parts) > 1:
             if name_parts[0].lower() in collapse_names:
                 data[3][:1] = ['{}_*'.format(name_parts[0]), data[3][0]]
-
-        # While we're here, let's store a lowercase version of the paths
-        # as well, to save having to do it in the actual util
-        data.append([])
-        for part in data[3]:
-            data[4].append(part.lower())
 
     # Write out our index
     print('Writing index to {}'.format(game_index))
