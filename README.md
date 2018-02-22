@@ -49,16 +49,17 @@ Simply run `ft-explorer.py` and it should do its thing.  If that's not
 working, try running it from a commandline/terminal/console, to see if it's
 printing out any error messages.
 
-The data from UCP FilterTool 2.2 is bundled with the application, so there is
-no need to copy anything over.  The app will load any files in the
-`resources/BL2/dumps` and `resources/TPS/dumps` directories which start with
-"`Resource - `" and have a `.txt` or `.txt.xz`
-*([lzma/lzma2 compression](https://en.wikipedia.org/wiki/Xz))* extension.
+The data from UCP FilterTool 2.2 is bundled with the application, thanks to
+LightChaosman.  There is no need to copy anything over from FilterTool.
 
-Feel free to add your own dump files in there, if what you're looking for
-isn't already bundled with FilterTool.  I've added a very small amount of
-extra data inside the BL2 file `Resources - FTExplorerAdditions.txt.xz`.
-
+You can add data to the resource library if you want, in the
+`resources/BL2/dumps` and `resources/TPS/dumps` directories.  The files must
+have the extensions `.dump.xz` or `.txt.xz` *([lzma/lzma2
+compression](https://en.wikipedia.org/wiki/Xz))*.  Additionally, the utility
+`generate_indexes.py` must be run whenever the data files are changed, to
+update the indexes that the app uses to avoid having to load all the data
+into memory at once.  Note that index generation takes quite awhile, since
+I've not bothered to try optimizing it.
 
 Status
 ------
@@ -74,9 +75,7 @@ convinced to spend some more effort on it.
 Some things which are at least somewhat likely to happen:
 
 * Nothin'!  This app is currently feature-complete from my initial goals.
-* We'll see what becomes of this once BLCMM (the successor to FilterTool)
-  comes out.  It's possible that BLCMM may totally obsolete this, but
-  I suspect I'll probably update it with the updated dataset anyway.
+* Update to BLCMM data, once BLCMM is released.
 
 Some things which are less likely to happen:
 
