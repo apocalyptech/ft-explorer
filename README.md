@@ -68,7 +68,7 @@ compression](https://en.wikipedia.org/wiki/Xz))*.  Additionally, the utility
 `generate_indexes.py` must be run whenever the data files are changed, to
 update the indexes that the app uses to avoid having to load all the data
 into memory at once.  Note that index generation takes quite awhile, since
-I've not bothered to try andoptimize it.
+I've not bothered to try optimizing it.
 
 Status
 ------
