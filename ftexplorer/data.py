@@ -115,12 +115,13 @@ class Data(object):
                 index = json.load(df)
 
         # Populate our basic node tree
-        for (filename, pos_start, length, parts) in index:
-            self.top.start_data(parts,
-                    game=game,
-                    filename=filename,
-                    pos_start=pos_start,
-                    length=length)
+        for (filename, filename_data) in index.items():
+            for (parts, pos_start, length) in filename_data:
+                self.top.start_data(parts,
+                        game=game,
+                        filename=filename,
+                        pos_start=pos_start,
+                        length=length)
 
     def __getitem__(self, item):
         """
