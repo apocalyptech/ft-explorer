@@ -93,6 +93,11 @@ Some things which are less likely to happen:
   be useful to at least be able to `Ctrl-F` while looking at an object and
   be able to search within the displayed text.  I suspect that may be
   more work than I'm willing to put in, but it's a tempting thought...
+* While the initial loading time isn't awful -- *~10sec on my machine* --
+  it may not be a terrible idea to have a little "loading" dialog pop up
+  during the initial load, to provide a bit of user feedback.  Would only
+  be able to update for the index loads and the tree population, but it'd
+  be better than nothing.
 
 Some things which are absolutely not going to happen:
 
