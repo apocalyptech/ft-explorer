@@ -86,6 +86,7 @@ for game in ['BL2', 'TPS']:
             if entry.name[-8:] == '.dump.xz' or entry.name[-7:] == '.txt.xz':
                 print('Processing {}'.format(entry.name))
                 with lzma.open(entry.path, 'rt', encoding='latin1') as df:
+                    reading_second_line = False
                     obj_name = None
                     begin_pos = df.tell()
                     line = df.readline()
@@ -95,21 +96,38 @@ for game in ['BL2', 'TPS']:
                             if obj_name:
                                 index[obj_name][2] = begin_pos - index[obj_name][1]
                             obj_name = match.group(1)
-                            main_parts = re.split('[:\.]', obj_name)
-                            index[obj_name] = [entry.name, begin_pos, 0, main_parts]
+                            index[obj_name] = [entry.name, begin_pos, 0]
+                            reading_second_line = True
 
-                            # Grab info about our top level, to see if it makes sense to
-                            # do extra splitting on it.
-                            top_name = main_parts[0].lower()
-                            full_collapse_names.add(top_name)
-                            name_parts = top_name.rsplit('_', 1)
-                            if len(name_parts) > 1:
-                                if name_parts[0] not in collapse_names:
-                                    collapse_names[name_parts[0]] = set()
-                                collapse_names[name_parts[0]].add(name_parts[1])
+                        elif reading_second_line:
 
+                            reading_second_line = False
+
+                            # Omit any object which doesn't have any actual data
+                            if '=== Object properties ===' in line:
+                                del index[obj_name]
+                                obj_name = None
+
+                            else:
+                                # Split our object name and add it to our data list
+                                main_parts = re.split('[:\.]', obj_name)
+                                index[obj_name].append(main_parts)
+
+                                # Grab info about our top level, for later processing to see if
+                                # it makes sense to do extra splitting on it.
+                                top_name = main_parts[0].lower()
+                                full_collapse_names.add(top_name)
+                                name_parts = top_name.rsplit('_', 1)
+                                if len(name_parts) > 1:
+                                    if name_parts[0] not in collapse_names:
+                                        collapse_names[name_parts[0]] = set()
+                                    collapse_names[name_parts[0]].add(name_parts[1])
+
+                        # Read the next line
                         begin_pos = df.tell()
                         line = df.readline()
+
+                    # If we reached the end of file, be sure to 'close out' the last object
                     if obj_name:
                         index[obj_name][2] = begin_pos - index[obj_name][1]
 
