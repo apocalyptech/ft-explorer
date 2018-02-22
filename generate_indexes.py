@@ -56,6 +56,7 @@ import json
 #   3) Length (uncompressed
 
 out_file = 'index.json.xz'
+min_collapse_count = 2
 
 # Print a warning - everyone Not Me won't actually care about this.
 print()
@@ -75,6 +76,9 @@ for game in ['BL2', 'TPS']:
     game_dir = os.path.join('resources', game, 'dumps')
     game_index = os.path.join(game_dir, out_file)
 
+    collapse_names = {}
+    full_collapse_names = set()
+
     # Loop through files and build the index
     index = {}
     with os.scandir(game_dir) as it:
@@ -91,15 +95,70 @@ for game in ['BL2', 'TPS']:
                             if obj_name:
                                 index[obj_name][2] = begin_pos - index[obj_name][1]
                             obj_name = match.group(1)
-                            index[obj_name] = [entry.name, begin_pos, 0]
+                            main_parts = re.split('[:\.]', obj_name)
+                            index[obj_name] = [entry.name, begin_pos, 0, main_parts]
+
+                            # Grab info about our top level, to see if it makes sense to
+                            # do extra splitting on it.
+                            top_name = main_parts[0].lower()
+                            full_collapse_names.add(top_name)
+                            name_parts = top_name.rsplit('_', 1)
+                            if len(name_parts) > 1:
+                                if name_parts[0] not in collapse_names:
+                                    collapse_names[name_parts[0]] = set()
+                                collapse_names[name_parts[0]].add(name_parts[1])
+
                         begin_pos = df.tell()
                         line = df.readline()
                     if obj_name:
                         index[obj_name][2] = begin_pos - index[obj_name][1]
 
+    # Filter out any top-level keys which are substrings of another key,
+    # or which don't have enough children
+    to_prune = set()
+    for (key, vals) in collapse_names.items():
+
+        # We need at least `min_collapse_count` items underneath us to
+        # qualify for collapsing
+        if len(vals) < min_collapse_count:
+            to_prune.add(key)
+        else:
+            parts = key.split('_')
+            for num in range(len(parts)):
+                # Prune any substrings
+                testval = '_'.join(parts[:num])
+                if testval in collapse_names:
+                    to_prune.add(testval)
+
+    # Also prune any collapsing which matches on a real object name,
+    # so we don't have a confusing-looking tree
+    for key in full_collapse_names:
+        if key in collapse_names:
+            to_prune.add(key)
+
+    # Now do the pruning
+    for key in to_prune:
+        del collapse_names[key]
+
+    # And *finally*, add in a pre-split Parts list to our index, split
+    # out additionally by `collapse_names`, if it applies.
+    for (name, data) in index.items():
+        name_parts = data[3][0].rsplit('_', 1)
+        if len(name_parts) > 1:
+            if name_parts[0].lower() in collapse_names:
+                data[3][:1] = ['{}_*'.format(name_parts[0]), data[3][0]]
+
+        # While we're here, let's store a lowercase version of the paths
+        # as well, to save having to do it in the actual util
+        data.append([])
+        for part in data[3]:
+            data[4].append(part.lower())
+
     # Write out our index
+    print('Writing index to {}'.format(game_index))
     with lzma.open(game_index, 'wt') as df:
         json.dump(index, df)
 
-print()
+    print()
+
 print('Done!')

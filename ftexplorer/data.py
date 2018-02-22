@@ -59,7 +59,7 @@ class Node(object):
             self.child_keys = sorted(self.children.keys(), key=str.lower)
         return self.children[self.child_keys[item]]
 
-    def start_data(self, obj_name_parts, game, filename, pos_start, length):
+    def start_data(self, obj_name_parts, obj_name_parts_lower, game, filename, pos_start, length):
         """
         Starts recording data for the specified object.
         Returns a list which can be appended to
@@ -72,9 +72,15 @@ class Node(object):
             self.has_data = True
             self.data = []
             return self.data
-        if obj_name_parts[0] not in self.children:
-            self.children[obj_name_parts[0]] = Node(obj_name_parts[0])
-        return self.children[obj_name_parts[0]].start_data(obj_name_parts[1:], game, filename, pos_start, length)
+        if obj_name_parts_lower[0] not in self.children:
+            self.children[obj_name_parts_lower[0]] = Node(obj_name_parts[0])
+        return self.children[obj_name_parts_lower[0]].start_data(
+                obj_name_parts[1:],
+                obj_name_parts_lower[1:],
+                game,
+                filename,
+                pos_start,
+                length)
 
     def load(self):
         """
@@ -110,8 +116,8 @@ class Data(object):
 
         # Populate our basic node tree
         for (obj_name, obj_data) in self.index.items():
-            parts = re.split('[\.:]', obj_name)
-            self.top.start_data(parts,
+            self.top.start_data(obj_data[3],
+                    obj_data[4],
                     game=game,
                     filename=obj_data[0],
                     pos_start=obj_data[1],
