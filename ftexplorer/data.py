@@ -109,13 +109,13 @@ class Data(object):
 
         # Read in our index
         index_filename = os.path.join('resources', game, 'dumps', 'index.json.xz')
-        self.index = []
+        index = []
         if os.path.exists(index_filename):
             with lzma.open(index_filename, 'rt') as df:
-                self.index = json.load(df)
+                index = json.load(df)
 
         # Populate our basic node tree
-        for (filename, pos_start, length, parts) in self.index:
+        for (filename, pos_start, length, parts) in index:
             self.top.start_data(parts,
                     game=game,
                     filename=filename,
