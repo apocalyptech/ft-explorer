@@ -98,6 +98,137 @@ class Node(object):
             except Exception as e:
                 return ['ERROR!  Could not load data: {}'.format(str(e))]
 
+    def parse_data_value(self, value):
+        """
+        Parses a structure inside our data - basically a property value,
+        but also any "sub" value that's inside parens in there.  This is
+        *highly* inefficient the way it's currently written -- those
+        parenthetical statements end up getting looped over multiple times
+        throughout here.  The code is also fairly laughable, so sorry about
+        that.  This isn't actually used by the GUI (thankfully).  It's
+        just here to support some data-inspection scripts.  Note that in
+        the event we get some data I didn't plan for, this function could
+        raise an Exception.
+        """
+        if len(value) == 0:
+            return value
+        elif value[0] == '(' and value[-1] == ')':
+            newdict = {}
+            cur_level = 0
+            cur_key = []
+            cur_value = []
+            cur_inner = []
+            state = 0
+            for char in value[1:-1]:
+
+                # State 0 - reading key
+                if state == 0:
+                    if char == '=':
+                        state = 1
+                    else:
+                        cur_key.append(char)
+
+                # State 1 - reading value
+                elif state == 1:
+                    if char == ',':
+                        newdict[''.join(cur_key)] = self.parse_data_value(''.join(cur_value))
+                        cur_key = []
+                        cur_value = []
+                        cur_inner = []
+                        state = 0
+                    elif char == '(':
+                        cur_level += 1
+                        cur_inner.append(char)
+                        state = 2
+                    else:
+                        cur_value.append(char)
+
+                # State 2 - Reading first char of an inner paren stanza
+                elif state == 2:
+                    if char == '(':
+                        newdict[''.join(cur_key)] = []
+                        state = 4
+                        at_first = True
+                    else:
+                        state = 3
+
+                # State 3 - reading a regular inner dict
+                if state == 3:
+                    if char == '(':
+                        cur_level += 1
+                    elif char == ')':
+                        cur_level -= 1
+                    cur_inner.append(char)
+                    if cur_level == 0:
+                        newdict[''.join(cur_key)] = self.parse_data_value(''.join(cur_inner[1:-1]))
+                        cur_key = []
+                        cur_value = []
+                        cur_inner = []
+                        state = 0
+
+                # State 4 - Reading a list
+                elif state == 4:
+                    if char == '(':
+                        cur_level += 1
+                        if not at_first:
+                            cur_inner.append(char)
+                    elif char == ')':
+                        cur_level -= 1
+                        cur_inner.append(char)
+
+                        if cur_level == 1:
+                            newdict[''.join(cur_key)].append(self.parse_data_value(''.join(cur_inner)))
+                            cur_inner = []
+
+                        elif cur_level == 0:
+                            cur_key = []
+                            cur_value = []
+                            cur_inner = []
+                            state = 0
+
+                    elif cur_level == 1 and char == ',':
+                        pass
+
+                    else:
+                        cur_inner.append(char)
+
+                    at_first = False
+
+            # Clean up, depending on our state
+            if state == 0:
+                pass
+            elif state == 1:
+                newdict[''.join(cur_key)] = self.parse_data_value(''.join(cur_value))
+            else:
+                raise Exception("shouldn't be able to get here")
+
+            return newdict
+        else:
+            return value
+
+    def get_structure(self):
+        """
+        Returns ourselves as a data structure of lists/dicts.  This is
+        not actually used by the GUI at the moment - it's just here to
+        support some data-inspection scripts I'm writing.
+        """
+        main = {}
+        for line in self.load():
+            match = re.match('^\s*([A-Za-z0-9_]+)(\((\d+)\))?=(.*)$', line)
+            if match:
+                key = match.group(1)
+                index = match.group(3)
+                value = match.group(4)
+                if index is None:
+                    main[key] = self.parse_data_value(value)
+                else:
+                    if key not in main:
+                        main[key] = []
+                    main[key].append(self.parse_data_value(value))
+            #else:
+            #    print(line)
+        return main
+
 class Data(object):
     """
     Top-level data object to hold everything we're interested in.
@@ -128,3 +259,25 @@ class Data(object):
         Lets us act somewhat like a list
         """
         return self.top[item]
+
+    def get_node_by_full_object(self, name):
+        """
+        Retrieves a node by the full object name.  Not actually used by the
+        GUI at the moment - just useful for some one-off data inspection
+        scripts I'm writing.
+        """
+        components = re.split('[\.:]', name)
+        cur_node = self.top
+
+        # Handle a case where we may have split things up by wildcard
+        if '_' in components[0]:
+            (left, right) = components[0].rsplit('_', 1)
+            test_name = '{}_*'.format(left.lower())
+            if test_name in cur_node.children:
+                cur_node = cur_node.children[test_name]
+
+        # Now iterate
+        for component in components:
+            cur_node = cur_node.children[component.lower()]
+        return cur_node
+
