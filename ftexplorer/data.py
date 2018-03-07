@@ -109,7 +109,12 @@ class Node(object):
         just here to support some data-inspection scripts.  Note that in
         the event we get some data I didn't plan for, this function could
         raise an Exception.
+
+        Note that this does NOT properly deal with quotes - if you have
+        something quoted which happens to have a comma in it, for instance,
+        things will probably go awry.
         """
+        #print('parsing: {}'.format(value))
         if len(value) == 0:
             return value
         elif value[0] == '(' and value[-1] == ')':
@@ -119,14 +124,18 @@ class Node(object):
             cur_value = []
             cur_inner = []
             state = 0
+            first_key_pass = False
             for char in value[1:-1]:
 
                 # State 0 - reading key
                 if state == 0:
                     if char == '=':
                         state = 1
+                    elif first_key_pass and char == ',':
+                        pass
                     else:
                         cur_key.append(char)
+                    first_key_pass = False
 
                 # State 1 - reading value
                 elif state == 1:
@@ -135,6 +144,7 @@ class Node(object):
                         cur_key = []
                         cur_value = []
                         cur_inner = []
+                        first_key_pass = True
                         state = 0
                     elif char == '(':
                         cur_level += 1
@@ -164,6 +174,7 @@ class Node(object):
                         cur_key = []
                         cur_value = []
                         cur_inner = []
+                        first_key_pass = True
                         state = 0
 
                 # State 4 - Reading a list
@@ -184,6 +195,7 @@ class Node(object):
                             cur_key = []
                             cur_value = []
                             cur_inner = []
+                            first_key_pass = True
                             state = 0
 
                     elif cur_level == 1 and char == ',':
@@ -204,7 +216,15 @@ class Node(object):
 
             return newdict
         else:
-            return value
+            parts = value.split(',')
+            if len(parts) == 1:
+                return value
+            else:
+                newdict = {}
+                for part in parts:
+                    (key, val) = part.split('=', 1)
+                    newdict[key] = val
+                return newdict
 
     def get_structure(self):
         """
