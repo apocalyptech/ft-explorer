@@ -36,19 +36,33 @@ import re
 import sys
 import lzma
 import colorama
+import argparse
 
-if len(sys.argv) != 3:
-    print('Usage: search.py <game> <searchstr>')
-    sys.exit(1)
+parser = argparse.ArgumentParser(
+    description='Search through FT-Explorer\'s BL2/TPS data',
+    )
 
-game = sys.argv[1].upper()
-search_str = sys.argv[2].lower()
+parser.add_argument('-n', '--nocolor',
+    action='store_true',
+    help='Supress color output',
+    )
 
-if game != 'TPS' and game != 'BL2':
-    print('Unknown game: {}'.format(game))
-    sys.exit(2)
+parser.add_argument('game',
+    choices=['bl2', 'tps'],
+    help='Which game to search',
+    )
 
-colorama.init(autoreset=True, strip=False)
+parser.add_argument('searchstr',
+    help='String to search for',
+    )
+
+args = parser.parse_args()
+
+game = args.game.upper()
+search_str = args.searchstr.lower()
+
+if not args.nocolor:
+    colorama.init(autoreset=True, strip=False)
 
 with os.scandir(os.path.join('resources', game, 'dumps')) as it:
     for entry in sorted(it, key=lambda e: getattr(e, 'name').lower()):
@@ -65,4 +79,7 @@ with os.scandir(os.path.join('resources', game, 'dumps')) as it:
                         found_result = False
                     if not found_result and cur_obj and cur_type and search_str in line.lower():
                         found_result = True
-                        print("{}{}{}'{}'".format(colorama.Fore.BLUE, cur_type, colorama.Fore.YELLOW + colorama.Style.DIM, cur_obj))
+                        if args.nocolor:
+                            print("{}'{}'".format(cur_type, cur_obj))
+                        else:
+                            print("{}{}{}'{}'".format(colorama.Fore.BLUE, cur_type, colorama.Fore.YELLOW + colorama.Style.DIM, cur_obj))
