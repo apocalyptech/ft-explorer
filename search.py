@@ -42,9 +42,16 @@ parser = argparse.ArgumentParser(
     description='Search through FT-Explorer\'s BL2/TPS data',
     )
 
-parser.add_argument('-n', '--nocolor',
+color_group = parser.add_mutually_exclusive_group()
+
+color_group.add_argument('-n', '--nocolor',
     action='store_true',
     help='Supress color output',
+    )
+
+color_group.add_argument('-d', '--dark',
+    action='store_true',
+    help='Colorize based on a dark-background terminal',
     )
 
 parser.add_argument('game',
@@ -61,9 +68,20 @@ args = parser.parse_args()
 game = args.game.upper()
 search_str = args.searchstr.lower()
 
-if not args.nocolor:
+# Set up colors
+if args.nocolor:
+    color_type = ''
+    color_obj = ''
+else:
     colorama.init(autoreset=True, strip=False)
+    if args.dark:
+        color_type = colorama.Fore.BLUE + colorama.Style.BRIGHT
+        color_obj = colorama.Fore.YELLOW + colorama.Style.NORMAL
+    else:
+        color_type = colorama.Fore.BLUE + colorama.Style.NORMAL
+        color_obj = colorama.Fore.YELLOW + colorama.Style.DIM
 
+# Loop through and search
 with os.scandir(os.path.join('resources', game, 'dumps')) as it:
     for entry in sorted(it, key=lambda e: getattr(e, 'name').lower()):
         if entry.name[-8:] == '.dump.xz':
@@ -79,7 +97,4 @@ with os.scandir(os.path.join('resources', game, 'dumps')) as it:
                         found_result = False
                     if not found_result and cur_obj and cur_type and search_str in line.lower():
                         found_result = True
-                        if args.nocolor:
-                            print("{}'{}'".format(cur_type, cur_obj))
-                        else:
-                            print("{}{}{}'{}'".format(colorama.Fore.BLUE, cur_type, colorama.Fore.YELLOW + colorama.Style.DIM, cur_obj))
+                        print("{}{}{}'{}'".format(color_type, cur_type, color_obj, cur_obj))
