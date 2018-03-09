@@ -46,14 +46,17 @@ import json
 # haven't bothered to look into optimizing it.  On my machine it takes a good
 # twelve minutes to generate.
 #
-# Internally, the index is a list of lists, where each element of the main
-# list contains these elements:
+# Internally, the index is a dictionary.  The keys are the data filenames (without
+# paths), and the values are a list of lists, where each inner list contains the
+# following elements:
 #
-#   1) Filename
-#   2) Start position (uncompressed)
-#   3) Length (uncompressed
-#   4) A list defining exactly where the item should live in the tree
+#   1) A list defining exactly where the item should live in the tree
 #      (its name, basically, but exploded)
+#   2) Start position (uncompressed)
+#   3) Length (uncompressed)
+#
+# (The inner lists should more precisely be tuples, but for Reasons we're just
+# using lists.)
 
 out_file = 'index.json.xz'
 min_collapse_count = 2
@@ -166,10 +169,17 @@ for game in ['BL2', 'TPS']:
             if name_parts[0].lower() in collapse_names:
                 data[3][:1] = ['{}_*'.format(name_parts[0]), data[3][0]]
 
+    # Transform to a dict with filenames as the key
+    fname_index = {}
+    for (filename, start_pos, length, parts) in index.values():
+        if filename not in fname_index:
+            fname_index[filename] = []
+        fname_index[filename].append((parts, start_pos, length))
+
     # Write out our index
     print('Writing index to {}'.format(game_index))
     with lzma.open(game_index, 'wt') as df:
-        json.dump(list(index.values()), df)
+        json.dump(fname_index, df)
 
     print()
 
