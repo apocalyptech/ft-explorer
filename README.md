@@ -36,16 +36,16 @@ like `python-pyqt5` or `pyqt5` or the like, and that should take care of it
 for you.
 
 **Windows/Mac:**
-* Install the latest Python 3.x.x version from
+1. Install the latest Python 3.x.x version from
   [python.org](https://www.python.org/downloads/).  The latest (as of March 17,
   2018) is 3.6.4.
-* Be sure to check the option that says something like "Add Python.exe to path"
+2. Be sure to check the option that says something like "Add Python.exe to path"
   or "Add Python to environment variables" when installing.
-* Hop out to a commandline/terminal/powershell and see if running the command
+3. Hop out to a commandline/terminal/powershell and see if running the command
   `python -V` outputs something like `Python 3.6.4`.
-* If so, try just running `pip install PyQt5` or `pip3 install PyQt5`.  If that
+4. If so, try just running `pip install PyQt5` or `pip3 install PyQt5`.  If that
   seemed to work, you may be good to go at that point!
-* Just double-click on `ft-explorer.py` in an Explorer/Finder window, to launch
+5. Just double-click on `ft-explorer.py` in an Explorer/Finder window, to launch
   it.
 
 Usage
