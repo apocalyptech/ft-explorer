@@ -37,8 +37,7 @@ for you.
 
 **Windows/Mac:**
 1. Install the latest Python 3.x.x version from
-  [python.org](https://www.python.org/downloads/).  The latest (as of March 17,
-  2018) is 3.6.4.
+  [python.org](https://www.python.org/downloads/).  The latest (as of March 17, 2018) is 3.6.4.
 2. Be sure to check the option that says something like "Add Python.exe to path"
   or "Add Python to environment variables" when installing.
 3. Hop out to a commandline/terminal/powershell and see if running the command
