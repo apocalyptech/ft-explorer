@@ -220,11 +220,20 @@ class Node(object):
             if len(parts) == 1:
                 return value
             else:
-                newdict = {}
-                for part in parts:
-                    (key, val) = part.split('=', 1)
-                    newdict[key] = val
-                return newdict
+                # This is hokey, and a byproduct of the stupid way we're parsing
+                # this stuff (and is susceptible to corner cases) - anyway, at
+                # this point we MAY have a dict, or we may just have a string
+                # which happens to have a comma in it.  We'll just test the first
+                # element and see if there's an equals sign in it.  If it does,
+                # then we'll parse it as a dict.  If not, just return as a string.
+                if '=' in parts[0]:
+                    newdict = {}
+                    for part in parts:
+                        (key, val) = part.split('=', 1)
+                        newdict[key] = val
+                    return newdict
+                else:
+                    return value
 
     def get_structure(self):
         """
@@ -257,6 +266,7 @@ class Data(object):
     def __init__(self, game):
 
         self.top = Node('')
+        self.game = game
 
         # Read in our index
         index_filename = os.path.join('resources', game, 'dumps', 'index.json.xz')
@@ -279,6 +289,24 @@ class Data(object):
         Lets us act somewhat like a list
         """
         return self.top[item]
+
+    def get_all_by_type(self, obj_type):
+        """
+        Returns a list of all objects of the given type.  Note that this is
+        not efficient at all, and doesn't cache anything - we will loop
+        through the whole file and match regexes each time this is called.
+        Also note that the object type is case-sensitive, and must match
+        the data filename.
+        """
+        objects = []
+        with lzma.open(os.path.join('resources', self.game, 'dumps',
+                '{}.dump.xz'.format(obj_type)), 'rt') as df:
+            for line in df.readlines():
+                match = re.match('^\*\*\* Property dump for object \'\S+ (\S+)\'.*$', line)
+                if match:
+                    objects.append(match.group(1))
+        return objects
+
 
     def get_node_by_full_object(self, name):
         """
