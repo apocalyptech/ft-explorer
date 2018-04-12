@@ -66,6 +66,24 @@ update the indexes that the app uses to avoid having to load all the data
 into memory at once.  Note that index generation takes quite awhile, since
 I've not bothered to try optimizing it.
 
+Setting the Font
+----------------
+
+FT Explorer is set to use whatever Monospace font your system considers the
+default, which may not be the font you want to use in the main data area.
+There's no way to set this font inside the FT Explorer GUI, but you can edit
+its configuration file once it's been run once to set the font however you
+like.  The location of the file will depend on your platform:
+
+* **Windows:** `HKEY_CURRENT_USER\Software\Apocalyptech\FT Explorer.conf`
+* **Mac:** `$HOME/Library/Preferences/com.Apocalyptech.FT Explorer.plist`
+* **Linux:** `$HOME/.config/Apocalyptech/FT Explorer.conf`
+
+Specifically, set the `datafont` attribute in the `[mainwindow]` section.
+The font size can be specified in this file as well, though you can change
+the font size in the main application by holding down `Ctrl` and using your
+mouse wheel.
+
 Status
 ------
 

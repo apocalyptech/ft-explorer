@@ -125,7 +125,13 @@ class DataDisplay(QtWidgets.QTextEdit):
         self.setReadOnly(True)
 
         # Use a Monospaced font
-        font = QtGui.QFont('Monospace')
+        font = QtGui.QFont(self.parent.settings.value('mainwindow/datafont', 'Monospace'))
+        fontsize = self.parent.settings.value('mainwindow/datafontsize')
+        try:
+            if fontsize:
+                font.setPointSizeF(float(fontsize))
+        except ValueError:
+            pass
         font.setStyleHint(font.Monospace)
         self.setFont(font)
 
@@ -437,6 +443,8 @@ class GUI(QtWidgets.QMainWindow):
         self.settings.setValue('mainwindow/width', self.size().width())
         self.settings.setValue('mainwindow/height', self.size().height())
         self.settings.setValue('mainwindow/splitter', self.splitter.saveState())
+        self.settings.setValue('mainwindow/datafont', self.display.currentFont().family())
+        self.settings.setValue('mainwindow/datafontsize', self.display.currentFont().pointSizeF())
 
     def toggle_word_wrap(self):
         """
