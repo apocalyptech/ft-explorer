@@ -101,7 +101,8 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
-* Nothin'!  This app is currently feature-complete from my initial goals.
+* See if there's a way to support doing keyboard things like shift-End to
+  select a whole line, etc, without having to disable readonly mode.
 
 Some things which are less likely to happen:
 
