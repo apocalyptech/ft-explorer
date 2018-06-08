@@ -91,6 +91,32 @@ class MainTree(QtWidgets.QTreeView):
         else:
             self.display.setText('(nothing selected)')
 
+    def go_to_path(self, paths):
+        """
+        Given a list of paths, expand the whole tree and select the
+        final element.
+        """
+        current = self.model.invisibleRootItem()
+        found_path = False
+        for path in paths:
+            path_compare = path.name.lower()
+            rowcount = current.rowCount()
+            found_inner = False
+            for rownum in range(rowcount):
+                item = current.child(rownum)
+                if item.text().lower() == path_compare:
+                    current = item
+                    self.setExpanded(current.index(), True)
+                    found_path = True
+                    found_inner = True
+                    break
+            if not found_inner:
+                break
+
+        # Select the item, if we found one.
+        if found_path:
+            self.setCurrentIndex(current.index())
+
 class DataDisplay(QtWidgets.QTextEdit):
     """
     Display area for our data
@@ -123,6 +149,7 @@ class DataDisplay(QtWidgets.QTextEdit):
         self.parent = parent
         self.initial_display()
         self.setReadOnly(True)
+        self.search_str = None
 
         # Use a Monospaced font
         font = QtGui.QFont(self.parent.settings.value('mainwindow/datafont', 'Monospace'))
@@ -297,6 +324,20 @@ class DataDisplay(QtWidgets.QTextEdit):
             # Display
             self.setHtml('<br>'.join(output), clear_node=False)
 
+    def search_for(self, search_str):
+        """
+        Searches for text inside our currently-displayed stuff
+        """
+        self.search_str = search_str
+        self.find(search_str)
+
+    def search_next(self):
+        """
+        Searches for the next instance of our previously-searched text
+        """
+        if self.search_str:
+            self.find(self.search_str)
+
 class GameSelect(QtWidgets.QComboBox):
     """
     ComboBox to switch between BL2 and TPS data
@@ -373,6 +414,7 @@ class GUI(QtWidgets.QMainWindow):
         self.settings = settings
         self.data_bl2 = data_bl2
         self.data_tps = data_tps
+        self.data = None
         self.app = app
 
         # Set some window properties 
@@ -381,11 +423,25 @@ class GUI(QtWidgets.QMainWindow):
             self.settings.value('mainwindow/width', 700, type=int),
             self.settings.value('mainwindow/height', 500, type=int)
             )
-        self.setWindowTitle('FT/BLCMM Explorer')
+        self.setWindowTitle('FT Explorer')
 
         # Set up Ctrl-Q to quit
         shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Q), self)
         shortcut.activated.connect(self.action_quit)
+
+        # Set up Ctrl-G to go to a specific object
+        goto = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_G), self)
+        goto.activated.connect(self.action_goto)
+
+        # Set up Ctrl-F to find text inside the data display
+        find = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_F), self)
+        find.activated.connect(self.action_find)
+
+        # Set up Enter to find the next result from a previous search
+        find_next_enter = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Enter), self)
+        find_next_return = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return), self)
+        find_next_enter.activated.connect(self.action_find_next)
+        find_next_return.activated.connect(self.action_find_next)
 
         # Load our toolbar
         self.toolbar = MainToolBar(self, data_bl2, data_tps)
@@ -399,10 +455,10 @@ class GUI(QtWidgets.QMainWindow):
 
         # Set up our treeview
         if self.settings.value('toggles/game', 'bl2') == 'bl2':
-            data = self.data_bl2
+            self.data = self.data_bl2
         else:
-            data = self.data_tps
-        self.treeview = MainTree(self, data, self.display)
+            self.data = self.data_tps
+        self.treeview = MainTree(self, self.data, self.display)
 
         # Add both to the splitter
         self.splitter.addWidget(self.treeview)
@@ -445,6 +501,51 @@ class GUI(QtWidgets.QMainWindow):
         self.settings.setValue('mainwindow/splitter', self.splitter.saveState())
         self.settings.setValue('mainwindow/datafont', self.display.currentFont().family())
         self.settings.setValue('mainwindow/datafontsize', self.display.currentFont().pointSizeF())
+
+    def action_goto(self):
+        """
+        Go to a user-inputted object
+        """
+        (objectname, status) = QtWidgets.QInputDialog.getText(self,
+                'Enter Object Name',
+                'Go to object:',
+                text='')
+        if status:
+            paths = []
+            try:
+                paths = self.data.get_node_paths_by_full_object(objectname)
+                self.treeview.go_to_path(paths)
+            except KeyError as e:
+                QtWidgets.QMessageBox.information(self,
+                    'Could Not Find Object',
+                    'Object name <tt>{}</tt> was not found'.format(objectname))
+
+        # Return focus to main window
+        self.activateWindow()
+
+    def action_find(self):
+        """
+        Find text inside our main data display
+        """
+        if self.display.search_str:
+            initial_text = self.display.search_str
+        else:
+            initial_text = ''
+        (searchstr, status) = QtWidgets.QInputDialog.getText(self,
+                'Search for Text',
+                'Text to search for:',
+                text=initial_text)
+        if status:
+            self.display.search_for(searchstr)
+
+        # Return focus to main window
+        self.activateWindow()
+
+    def action_find_next(self):
+        """
+        Advances to the next Find result
+        """
+        self.display.search_next()
 
     def toggle_word_wrap(self):
         """
@@ -489,6 +590,7 @@ class GUI(QtWidgets.QMainWindow):
         from our GameSelect combo box
         """
         self.treeview.load_data(data)
+        self.data = data
         self.display.initial_display()
 
 class Application(QtWidgets.QApplication):

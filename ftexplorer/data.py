@@ -307,15 +307,14 @@ class Data(object):
                     objects.append(match.group(1))
         return objects
 
-
-    def get_node_by_full_object(self, name):
+    def get_node_paths_by_full_object(self, name):
         """
-        Retrieves a node by the full object name.  Not actually used by the
-        GUI at the moment - just useful for some one-off data inspection
-        scripts I'm writing.
+        Returns a list of components which can be used to find the given
+        object `name` in our tree.
         """
         components = re.split('[\.:]', name)
         cur_node = self.top
+        paths = []
 
         # Handle a case where we may have split things up by wildcard
         if '_' in components[0]:
@@ -323,9 +322,18 @@ class Data(object):
             test_name = '{}_*'.format(left.lower())
             if test_name in cur_node.children:
                 cur_node = cur_node.children[test_name]
+                paths.append(cur_node)
 
         # Now iterate
         for component in components:
             cur_node = cur_node.children[component.lower()]
-        return cur_node
+            paths.append(cur_node)
 
+        # Return the list
+        return paths
+
+    def get_node_by_full_object(self, name):
+        """
+        Retrieves a node by the full object name.
+        """
+        return self.get_node_paths_by_full_object(name)[-1]

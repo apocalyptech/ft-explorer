@@ -84,7 +84,7 @@ else:
 # Loop through and search
 with os.scandir(os.path.join('resources', game, 'dumps')) as it:
     for entry in sorted(it, key=lambda e: getattr(e, 'name').lower()):
-        if entry.name[-8:] == '.dump.xz':
+        if entry.name[-8:] == '.dump.xz' or entry.name[-7:] == '.txt.xz':
             with lzma.open(entry.path, 'rt', encoding='latin1') as df:
                 cur_obj = None
                 cur_type = None

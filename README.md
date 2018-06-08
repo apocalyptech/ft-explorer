@@ -1,34 +1,26 @@
-FilterTool/BLCMM Explorer (ft-explorer)
-=======================================
+FilterTool Explorer (ft-explorer)
+=================================
 
-This is a little Python 3 / PyQt5 application to enable tree-based
-browsing of the resource data used by the excellent Borderlands 2/TPS
-modding tool [FilterTool](https://github.com/BLCM/BLCMods/wiki/UCP-Filter-Tool),
-and its successor, BLCMM.
+This is a little Python 3 / PyQt5 application to enable browsing of the
+resource data used by the excellent Borderlands 2/TPS modding tool
+[FilterTool](https://github.com/BLCM/BLCMods/wiki/UCP-Filter-Tool).
 
-BLCMM somewhat obsoletes this application, since it includes tree-based
-browsing of data inside its Object Explorer (unlike FilterTool, which
-didn't).  BLCMM breaks up the data into various categories, though, and
-doesn't provide the total top-down tree view that this app does, so
-this app may still have some limited usefulness 
-
-I threw this together originally because I like the way
+I threw this together because I like the way
 [UE Explorer](http://eliotvu.com/portfolio/view/21/ue-explorer) lets you
-browse around Borderlands objects in a nice tree format, but using
+browse around Borderlands objects/classes in a nice tree format, but using
 UE Explorer is often a bit cumbersome: it doesn't work fantastically under
 Wine *(I'm running Linux)*, it'll often require tweaks to its settings to
 properly display some properties, and you've got to know or guess which UPK
 file you need to look in to find what you're looking for.
 
-Similarly, FilterTool was great for searching around and viewing Borderlands
-data, because it contains an awful lot of pre-dumped object data.
-However, even though it's got an autocomplete-like function, in its editor
-component, I often found myself missing the GUI browsing which UE Explorer
-provides.  *(As I mentioned above, BLCMM does close much of that gap on its
-own, making this app less useful.)*
+Similarly, FilterTool is great for searching around and viewing Borderlands
+data, because it contains an awful lot of pre-dumped class/object data
+*(258MB uncompressed, in fact)*, but even though it's got an
+autocomplete-like function, I often find myself missing the GUI browsing
+which UE Explorer provides.
 
-So, enter this app!  It takes the FilterTool/BLCMM pre-dumped data and
-presents it in a tree, like UE Explorer would do.
+So, enter this app!  It takes the FilterTool pre-dumped data and presents
+it in a tree, like UE Explorer would do.
 
 Requirements
 ------------
@@ -43,12 +35,17 @@ but if not, just use your package manger to install a package named something
 like `python-pyqt5` or `pyqt5` or the like, and that should take care of it
 for you.
 
-**Windows/Mac:** Install the latest Python 3.x.x version from
-[python.org](https://www.python.org/downloads/).  Hop out to a commandline or
-terminal and see if running the command `python -V` outputs something like
-`Python 3.6.4`.  If so, try just running `pip install PyQt5` or `pip3 install
-PyQt5`.  If that seemed to work, you may be good to go at that point!  I'm
-afraid I can't help out much with install issues on Windows, though.
+**Windows/Mac:**
+1. Install the latest Python 3.x.x version from
+  [python.org](https://www.python.org/downloads/).  The latest (as of June 8, 2018) is 3.6.5.
+2. Be sure to check the option that says something like "Add Python.exe to path"
+  or "Add Python to environment variables" when installing.
+3. Hop out to a commandline/terminal/powershell and see if running the command
+  `python -V` outputs something like `Python 3.6.4`.
+4. If so, try just running `pip install PyQt5` or `pip3 install PyQt5`.  If that
+  seemed to work, you may be good to go at that point!
+5. Just double-click on `ft-explorer.py` in an Explorer/Finder window, to launch
+  it.
 
 Usage
 -----
@@ -57,9 +54,15 @@ Simply run `ft-explorer.py` and it should do its thing.  If that's not
 working, try running it from a commandline/terminal/console, to see if it's
 printing out any error messages.
 
-The data from BLCMM 1.0 (for Borderlands 2) and FilterTool 2.2 (for The
-Pre-Sequel) is bundled with the application, thanks to LightChaosman.  There
-is no need to copy anything over from FilterTool or BLCMM.
+The data from UCP FilterTool 2.2 is bundled with the application, thanks to
+LightChaosman.  There is no need to copy anything over from FilterTool.
+
+Nearly all the functionality in the app is visible immediately onscreen,
+but there are a couple of extra keys you can use:
+
+* `Ctrl-G`: Go to specified object
+* `Ctrl-F`: Search for text inside the current object
+* `Enter`: Go to the next search result
 
 You can add data to the resource library if you want, in the
 `resources/BL2/dumps` and `resources/TPS/dumps` directories.  The files must
@@ -103,29 +106,22 @@ Some things which are at least somewhat likely to happen:
 
 * See if there's a way to support doing keyboard things like shift-End to
   select a whole line, etc, without having to disable readonly mode.
+* Update to BLCMM data, once BLCMM is released.
 
 Some things which are less likely to happen:
 
 * Proper packaging *(for any platform)*
 * Fancy icons and stuff in the tree
-* While I have no intention of adding searching to the app, it *would*
-  be useful to at least be able to `Ctrl-F` while looking at an object and
-  be able to search within the displayed text.  I suspect that may be
-  more work than I'm willing to put in, but it's a tempting thought...
-* While the initial loading time isn't awful -- *~10sec on my machine* --
-  it may not be a terrible idea to have a little "loading" dialog pop up
-  during the initial load, to provide a bit of user feedback.  Would only
-  be able to update for the index loads and the tree population, but it'd
-  be better than nothing.
+* In-text hyperlinks, like FilterTool/BLCMM's Object Explorer does?
 
 Some things which are absolutely not going to happen:
 
-* Searching *(FilterTool/BLCMM already does a great job at this)*
+* Searching *(FilterTool already does a great job at this)*
 
 Credits
 -------
 
-The bundled pre-dumped object data is taken from BLCMM/FilterTool, by
+The bundled pre-dumped object data is taken from UCP FilterTool, by
 [LightChaosman](https://www.youtube.com/channel/UCgJ6TA5sZ_Rwc1LPDYbQT1Q), and
 is included with their gracious consent.
 
