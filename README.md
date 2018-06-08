@@ -57,6 +57,11 @@ printing out any error messages.
 The data from UCP FilterTool 2.2 is bundled with the application, thanks to
 LightChaosman.  There is no need to copy anything over from FilterTool.
 
+Nearly all the functionality in the app is visible immediately onscreen,
+but there are a couple of extra keys you can use:
+
+* `Ctrl-G`: Go to specified object
+
 You can add data to the resource library if you want, in the
 `resources/BL2/dumps` and `resources/TPS/dumps` directories.  The files must
 have the extensions `.dump.xz` or `.txt.xz` *([lzma/lzma2

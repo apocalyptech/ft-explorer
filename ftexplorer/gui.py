@@ -91,6 +91,32 @@ class MainTree(QtWidgets.QTreeView):
         else:
             self.display.setText('(nothing selected)')
 
+    def go_to_path(self, paths):
+        """
+        Given a list of paths, expand the whole tree and select the
+        final element.
+        """
+        current = self.model.invisibleRootItem()
+        found_path = False
+        for path in paths:
+            path_compare = path.name.lower()
+            rowcount = current.rowCount()
+            found_inner = False
+            for rownum in range(rowcount):
+                item = current.child(rownum)
+                if item.text().lower() == path_compare:
+                    current = item
+                    self.setExpanded(current.index(), True)
+                    found_path = True
+                    found_inner = True
+                    break
+            if not found_inner:
+                break
+
+        # Select the item, if we found one.
+        if found_path:
+            self.setCurrentIndex(current.index())
+
 class DataDisplay(QtWidgets.QTextEdit):
     """
     Display area for our data
@@ -373,6 +399,7 @@ class GUI(QtWidgets.QMainWindow):
         self.settings = settings
         self.data_bl2 = data_bl2
         self.data_tps = data_tps
+        self.data = None
         self.app = app
 
         # Set some window properties 
@@ -387,6 +414,10 @@ class GUI(QtWidgets.QMainWindow):
         shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Q), self)
         shortcut.activated.connect(self.action_quit)
 
+        # Set up Ctrl-G to go to a specific object
+        goto = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_G), self)
+        goto.activated.connect(self.action_goto)
+
         # Load our toolbar
         self.toolbar = MainToolBar(self, data_bl2, data_tps)
         self.addToolBar(self.toolbar)
@@ -399,10 +430,10 @@ class GUI(QtWidgets.QMainWindow):
 
         # Set up our treeview
         if self.settings.value('toggles/game', 'bl2') == 'bl2':
-            data = self.data_bl2
+            self.data = self.data_bl2
         else:
-            data = self.data_tps
-        self.treeview = MainTree(self, data, self.display)
+            self.data = self.data_tps
+        self.treeview = MainTree(self, self.data, self.display)
 
         # Add both to the splitter
         self.splitter.addWidget(self.treeview)
@@ -445,6 +476,27 @@ class GUI(QtWidgets.QMainWindow):
         self.settings.setValue('mainwindow/splitter', self.splitter.saveState())
         self.settings.setValue('mainwindow/datafont', self.display.currentFont().family())
         self.settings.setValue('mainwindow/datafontsize', self.display.currentFont().pointSizeF())
+
+    def action_goto(self):
+        """
+        Go to a user-inputted object
+        """
+        (objectname, status) = QtWidgets.QInputDialog.getText(self,
+                'Enter Object Name',
+                'Go to object:',
+                text='')
+        if status:
+            paths = []
+            try:
+                paths = self.data.get_node_paths_by_full_object(objectname)
+                self.treeview.go_to_path(paths)
+            except KeyError as e:
+                QtWidgets.QMessageBox.information(self,
+                    'Could Not Find Object',
+                    'Object name <tt>{}</tt> was not found'.format(objectname))
+
+        # Return focus to main window
+        self.activateWindow()
 
     def toggle_word_wrap(self):
         """
@@ -489,6 +541,7 @@ class GUI(QtWidgets.QMainWindow):
         from our GameSelect combo box
         """
         self.treeview.load_data(data)
+        self.data = data
         self.display.initial_display()
 
 class Application(QtWidgets.QApplication):
