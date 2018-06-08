@@ -149,6 +149,7 @@ class DataDisplay(QtWidgets.QTextEdit):
         self.parent = parent
         self.initial_display()
         self.setReadOnly(True)
+        self.search_str = None
 
         # Use a Monospaced font
         font = QtGui.QFont(self.parent.settings.value('mainwindow/datafont', 'Monospace'))
@@ -323,6 +324,20 @@ class DataDisplay(QtWidgets.QTextEdit):
             # Display
             self.setHtml('<br>'.join(output), clear_node=False)
 
+    def search_for(self, search_str):
+        """
+        Searches for text inside our currently-displayed stuff
+        """
+        self.search_str = search_str
+        self.find(search_str)
+
+    def search_next(self):
+        """
+        Searches for the next instance of our previously-searched text
+        """
+        if self.search_str:
+            self.find(self.search_str)
+
 class GameSelect(QtWidgets.QComboBox):
     """
     ComboBox to switch between BL2 and TPS data
@@ -418,6 +433,16 @@ class GUI(QtWidgets.QMainWindow):
         goto = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_G), self)
         goto.activated.connect(self.action_goto)
 
+        # Set up Ctrl-F to find text inside the data display
+        find = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_F), self)
+        find.activated.connect(self.action_find)
+
+        # Set up Enter to find the next result from a previous search
+        find_next_enter = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Enter), self)
+        find_next_return = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return), self)
+        find_next_enter.activated.connect(self.action_find_next)
+        find_next_return.activated.connect(self.action_find_next)
+
         # Load our toolbar
         self.toolbar = MainToolBar(self, data_bl2, data_tps)
         self.addToolBar(self.toolbar)
@@ -497,6 +522,30 @@ class GUI(QtWidgets.QMainWindow):
 
         # Return focus to main window
         self.activateWindow()
+
+    def action_find(self):
+        """
+        Find text inside our main data display
+        """
+        if self.display.search_str:
+            initial_text = self.display.search_str
+        else:
+            initial_text = ''
+        (searchstr, status) = QtWidgets.QInputDialog.getText(self,
+                'Search for Text',
+                'Text to search for:',
+                text=initial_text)
+        if status:
+            self.display.search_for(searchstr)
+
+        # Return focus to main window
+        self.activateWindow()
+
+    def action_find_next(self):
+        """
+        Advances to the next Find result
+        """
+        self.display.search_next()
 
     def toggle_word_wrap(self):
         """

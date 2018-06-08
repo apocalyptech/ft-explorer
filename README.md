@@ -37,7 +37,7 @@ for you.
 
 **Windows/Mac:**
 1. Install the latest Python 3.x.x version from
-  [python.org](https://www.python.org/downloads/).  The latest (as of March 17, 2018) is 3.6.4.
+  [python.org](https://www.python.org/downloads/).  The latest (as of June 8, 2018) is 3.6.5.
 2. Be sure to check the option that says something like "Add Python.exe to path"
   or "Add Python to environment variables" when installing.
 3. Hop out to a commandline/terminal/powershell and see if running the command
@@ -61,6 +61,8 @@ Nearly all the functionality in the app is visible immediately onscreen,
 but there are a couple of extra keys you can use:
 
 * `Ctrl-G`: Go to specified object
+* `Ctrl-F`: Search for text inside the current object
+* `Enter`: Go to the next search result
 
 You can add data to the resource library if you want, in the
 `resources/BL2/dumps` and `resources/TPS/dumps` directories.  The files must
@@ -109,10 +111,7 @@ Some things which are less likely to happen:
 
 * Proper packaging *(for any platform)*
 * Fancy icons and stuff in the tree
-* While I have no intention of adding searching to the app, it *would*
-  be useful to at least be able to `Ctrl-F` while looking at an object and
-  be able to search within the displayed text.  I suspect that may be
-  more work than I'm willing to put in, but it's a tempting thought...
+* In-text hyperlinks, like FilterTool/BLCMM's Object Explorer does?
 
 Some things which are absolutely not going to happen:
 
