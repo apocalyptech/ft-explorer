@@ -218,7 +218,15 @@ class Node(object):
         else:
             parts = value.split(',')
             if len(parts) == 1:
-                return value
+                # See the comment on the other side of the `if` here.  We may have
+                # a single-element dict.
+                if '=' in value:
+                    newdict = {}
+                    (key, val) = value.split('=', 1)
+                    newdict[key] = val
+                    return newdict
+                else:
+                    return value
             else:
                 # This is hokey, and a byproduct of the stupid way we're parsing
                 # this stuff (and is susceptible to corner cases) - anyway, at
@@ -257,6 +265,16 @@ class Node(object):
             #else:
             #    print(line)
         return main
+
+    def get_children_with_name(self, prefix):
+        """
+        Returns a list of children of ourselves which match the given
+        prefix to the child name.
+        """
+        prefix = prefix.lower()
+        for childname, child in self.children.items():
+            if childname.lower().startswith(prefix):
+                yield child
 
 class Data(object):
     """
@@ -337,3 +355,24 @@ class Data(object):
         Retrieves a node by the full object name.
         """
         return self.get_node_paths_by_full_object(name)[-1]
+
+    def get_level_package_names(self, levelname):
+        """
+        Returns a list of package names for the given level name.
+        """
+        main_name = '{}.TheWorld'.format(levelname)
+        level_packages = ['{}:PersistentLevel'.format(main_name)]
+        main_node = self.get_node_by_full_object(main_name)
+        for child in main_node.get_children_with_name('levelstreaming'):
+            childstruct = child.get_structure()
+            if childstruct['LoadedLevel'] != 'None':
+                level_packages.append(childstruct['LoadedLevel'].split("'", 2)[1])
+        return level_packages
+
+    def get_level_package_nodes(self, levelname):
+        """
+        Returns a list of nodes for the given level name.  Will be a list of
+        tuples.  The first element is the base node name, the second is the
+        node itself.
+        """
+        return [(name, self.get_node_by_full_object(name)) for name in self.get_level_package_names(levelname)]
