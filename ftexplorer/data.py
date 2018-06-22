@@ -32,6 +32,67 @@ import sys
 import lzma
 import json
 
+class Weight(object):
+
+    ids = {
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_0_VeryCommon'": 200,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_1_Common'": 100,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_2_Uncommon'": 10,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_3_Uncommoner'": 5,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_4_Rare'": 1,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_5_VeryRare'": .1,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_6_Legendary'": .03,
+        }
+
+    def __init__(self, prob):
+        if prob['BaseValueAttribute'] != 'None':
+            raise Exception('Cannot handle BVA at the moment')
+        if prob['InitializationDefinition'] == 'None':
+            self.bvc = round(float(prob['BaseValueConstant']), 6)
+        else:
+            if prob['InitializationDefinition'] in self.ids:
+                self.bvc = self.ids[prob['InitializationDefinition']]
+            else:
+                raise Exception('Not found in known IDs: {}'.format(prob['InitializationDefinition']))
+        self.bvsc = round(float(prob['BaseValueScaleConstant']), 6)
+        self.value = round(self.bvc*self.bvsc, 6)
+        self.may_vary = False
+
+class BalancedItems(object):
+
+    def __init__(self):
+        self.items = []
+        self.total = 0
+
+    def add_item(self, item_struct):
+        if item_struct['ItmPoolDefinition'] != 'None':
+            title = item_struct['ItmPoolDefinition'].split("'")[1]
+        else:
+            title = item_struct['InvBalanceDefinition'].split("'")[1]
+
+        weight = Weight(item_struct['Probability'])
+        self.total += weight.value
+        self.items.append((title, weight))
+
+    def get_report_data(self):
+        if self.total == 0:
+            return []
+        ret_list = []
+        for (title, weight) in self.items:
+            prob = weight.value/self.total*100
+            if prob >= 1:
+                prob = round(prob)
+            else:
+                prob = round(prob, 2)
+            ret_list.append((prob, title))
+        return ret_list
+
+    def get_report_str(self, prefix=''):
+        ret_list = []
+        for (prob, title) in self.get_report_data():
+            ret_list.append('{}{}%: {}'.format(prefix, prob, title))
+        return "\n".join(ret_list)
+
 class Node(object):
     """
     A node in our tree
@@ -376,3 +437,13 @@ class Data(object):
         node itself.
         """
         return [(name, self.get_node_by_full_object(name)) for name in self.get_level_package_names(levelname)]
+
+    @staticmethod
+    def get_struct_attr_obj(node_struct, name):
+        if name in node_struct:
+            if node_struct[name] != 'None':
+                if "'" in node_struct[name]:
+                    return node_struct[name].split("'", 2)[1]
+                else:
+                    return node_struct[name]
+        return None
