@@ -423,7 +423,7 @@ class GUI(QtWidgets.QMainWindow):
             self.settings.value('mainwindow/width', 700, type=int),
             self.settings.value('mainwindow/height', 500, type=int)
             )
-        self.setWindowTitle('FT Explorer')
+        self.setWindowTitle('FT/BLCMM Explorer')
 
         # Set up Ctrl-Q to quit
         shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Q), self)
