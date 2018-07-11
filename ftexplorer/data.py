@@ -32,6 +32,67 @@ import sys
 import lzma
 import json
 
+class Weight(object):
+
+    ids = {
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_0_VeryCommon'": 200,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_1_Common'": 100,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_2_Uncommon'": 10,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_3_Uncommoner'": 5,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_4_Rare'": 1,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_5_VeryRare'": .1,
+            "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_6_Legendary'": .03,
+        }
+
+    def __init__(self, prob):
+        if prob['BaseValueAttribute'] != 'None':
+            raise Exception('Cannot handle BVA at the moment')
+        if prob['InitializationDefinition'] == 'None':
+            self.bvc = round(float(prob['BaseValueConstant']), 6)
+        else:
+            if prob['InitializationDefinition'] in self.ids:
+                self.bvc = self.ids[prob['InitializationDefinition']]
+            else:
+                raise Exception('Not found in known IDs: {}'.format(prob['InitializationDefinition']))
+        self.bvsc = round(float(prob['BaseValueScaleConstant']), 6)
+        self.value = round(self.bvc*self.bvsc, 6)
+        self.may_vary = False
+
+class BalancedItems(object):
+
+    def __init__(self):
+        self.items = []
+        self.total = 0
+
+    def add_item(self, item_struct):
+        if item_struct['ItmPoolDefinition'] != 'None':
+            title = item_struct['ItmPoolDefinition'].split("'")[1]
+        else:
+            title = item_struct['InvBalanceDefinition'].split("'")[1]
+
+        weight = Weight(item_struct['Probability'])
+        self.total += weight.value
+        self.items.append((title, weight))
+
+    def get_report_data(self):
+        if self.total == 0:
+            return []
+        ret_list = []
+        for (title, weight) in self.items:
+            prob = weight.value/self.total*100
+            if prob >= 1:
+                prob = round(prob)
+            else:
+                prob = round(prob, 2)
+            ret_list.append((prob, title))
+        return ret_list
+
+    def get_report_str(self, prefix=''):
+        ret_list = []
+        for (prob, title) in self.get_report_data():
+            ret_list.append('{}{}%: {}'.format(prefix, prob, title))
+        return "\n".join(ret_list)
+
 class Node(object):
     """
     A node in our tree
@@ -218,7 +279,15 @@ class Node(object):
         else:
             parts = value.split(',')
             if len(parts) == 1:
-                return value
+                # See the comment on the other side of the `if` here.  We may have
+                # a single-element dict.
+                if '=' in value:
+                    newdict = {}
+                    (key, val) = value.split('=', 1)
+                    newdict[key] = val
+                    return newdict
+                else:
+                    return value
             else:
                 # This is hokey, and a byproduct of the stupid way we're parsing
                 # this stuff (and is susceptible to corner cases) - anyway, at
@@ -257,6 +326,16 @@ class Node(object):
             #else:
             #    print(line)
         return main
+
+    def get_children_with_name(self, prefix):
+        """
+        Returns a list of children of ourselves which match the given
+        prefix to the child name.
+        """
+        prefix = prefix.lower()
+        for childname, child in self.children.items():
+            if childname.lower().startswith(prefix):
+                yield child
 
 class Data(object):
     """
@@ -300,7 +379,7 @@ class Data(object):
         """
         objects = []
         with lzma.open(os.path.join('resources', self.game, 'dumps',
-                '{}.dump.xz'.format(obj_type)), 'rt') as df:
+                '{}.dump.xz'.format(obj_type)), 'rt', encoding='latin1') as df:
             for line in df.readlines():
                 match = re.match('^\*\*\* Property dump for object \'\S+ (\S+)\'.*$', line)
                 if match:
@@ -332,8 +411,49 @@ class Data(object):
         # Return the list
         return paths
 
+    def get_struct_by_full_object(self, name):
+        """
+        Retrieves a node's structure by the full object name.
+        """
+        return self.get_node_by_full_object(name).get_structure()
+
     def get_node_by_full_object(self, name):
         """
         Retrieves a node by the full object name.
         """
         return self.get_node_paths_by_full_object(name)[-1]
+
+    def get_level_package_names(self, levelname):
+        """
+        Returns a list of package names for the given level name.
+        """
+        main_name = '{}.TheWorld'.format(levelname)
+        level_packages = ['{}:PersistentLevel'.format(main_name)]
+        main_node = self.get_node_by_full_object(main_name)
+        for child in main_node.get_children_with_name('levelstreaming'):
+            childstruct = child.get_structure()
+            if childstruct['LoadedLevel'] != 'None':
+                level_packages.append(childstruct['LoadedLevel'].split("'", 2)[1])
+        return level_packages
+
+    def get_level_package_nodes(self, levelname):
+        """
+        Returns a list of nodes for the given level name.  Will be a list of
+        tuples.  The first element is the base node name, the second is the
+        node itself.
+        """
+        return [(name, self.get_node_by_full_object(name)) for name in self.get_level_package_names(levelname)]
+
+    @staticmethod
+    def get_attr_obj(name):
+        if "'" in name:
+            return name.split("'", 2)[1]
+        else:
+            return name
+
+    @staticmethod
+    def get_struct_attr_obj(node_struct, name):
+        if name in node_struct:
+            if node_struct[name] != 'None':
+                return Data.get_attr_obj(node_struct[name])
+        return None
