@@ -379,7 +379,7 @@ class Data(object):
         """
         objects = []
         with lzma.open(os.path.join('resources', self.game, 'dumps',
-                '{}.dump.xz'.format(obj_type)), 'rt') as df:
+                '{}.dump.xz'.format(obj_type)), 'rt', encoding='latin1') as df:
             for line in df.readlines():
                 match = re.match('^\*\*\* Property dump for object \'\S+ (\S+)\'.*$', line)
                 if match:
@@ -411,6 +411,12 @@ class Data(object):
         # Return the list
         return paths
 
+    def get_struct_by_full_object(self, name):
+        """
+        Retrieves a node's structure by the full object name.
+        """
+        return self.get_node_by_full_object(name).get_structure()
+
     def get_node_by_full_object(self, name):
         """
         Retrieves a node by the full object name.
@@ -439,11 +445,15 @@ class Data(object):
         return [(name, self.get_node_by_full_object(name)) for name in self.get_level_package_names(levelname)]
 
     @staticmethod
+    def get_attr_obj(name):
+        if "'" in name:
+            return name.split("'", 2)[1]
+        else:
+            return name
+
+    @staticmethod
     def get_struct_attr_obj(node_struct, name):
         if name in node_struct:
             if node_struct[name] != 'None':
-                if "'" in node_struct[name]:
-                    return node_struct[name].split("'", 2)[1]
-                else:
-                    return node_struct[name]
+                return Data.get_attr_obj(node_struct[name])
         return None
