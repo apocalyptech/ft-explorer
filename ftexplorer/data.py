@@ -42,6 +42,13 @@ class Weight(object):
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_4_Rare'": 1,
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_5_VeryRare'": .1,
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_6_Legendary'": .03,
+
+            # For now, assuming Normal/PT1
+            "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough1Only'": 1,
+            "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough2Only'": 0,
+
+            # Not really sure what to do with this one; we'll just assume it's 1.
+            "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Enemy_MajorUpgrade_PerPlayer'": 1,
         }
 
     def __init__(self, prob):
