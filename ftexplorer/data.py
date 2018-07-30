@@ -155,6 +155,13 @@ class Node(object):
                 pos_start,
                 length)
 
+    def load_from_string_list(self, data):
+        """
+        Given a list of strings in `data`, "load" it in.
+        """
+        self.data = data
+        self.loaded = True
+
     def load_from_open_file(self, df):
         """
         Given an open filehandle, read in our data.  Returns the data that we've
@@ -390,25 +397,32 @@ class Data(object):
 
     def get_all_by_type(self, obj_type):
         """
-        Returns a list of all objects of the given type.  This is a bit
-        inefficient for two reasons: 1) regex, and 2) it reads the entire
-        file twice.  Still, better than we had before.  Data is saved in the
+        Returns a list of all objects of the given type.  This could be more
+        efficient if we had a type index, perhaps, but it's pretty good.  At
+        least, much better than we had before.  Data is saved/cached in the
         Node structure itself.  Note that the object type is case-sensitive,
         and must match the data filename.  Returns a list of the objects
         loaded.
         """
         objects = []
+        node = None
+        data = []
         with lzma.open(os.path.join('resources', self.game, 'dumps',
                 '{}.dump.xz'.format(obj_type)), 'rt', encoding='latin1') as df:
             for line in df.readlines():
                 match = re.match('^\*\*\* Property dump for object \'\S+ (\S+)\'.*$', line)
                 if match:
                     objects.append(match.group(1))
-        with lzma.open(os.path.join('resources', self.game, 'dumps',
-                '{}.dump.xz'.format(obj_type)), 'rb') as df:
-            for object_name in objects:
-                node = self.get_node_by_full_object(object_name)
-                node.load_from_open_file(df)
+                    if node:
+                        node.load_from_string_list(data)
+                    data = [line]
+                    node = self.get_node_by_full_object(match.group(1))
+                else:
+                    data.append(line)
+
+        if node:
+            node.load_from_string_list(data)
+
         return objects
 
     def get_node_paths_by_full_object(self, name):
