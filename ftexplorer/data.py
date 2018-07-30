@@ -49,6 +49,11 @@ class Weight(object):
 
             # Not really sure what to do with this one; we'll just assume it's 1.
             "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Enemy_MajorUpgrade_PerPlayer'": 1,
+
+            # This is active during the Mutator arena in TPS.  No idea what the actual
+            # numbers end up looking like, but we'll just say 1.  I can't imagine it
+            # goes lower than that.
+            "AttributeInitializationDefinition'GD_Ma_Mutator.Attributes.Init_EnemyHealth_Torment'": 1,
         }
 
     def __init__(self, prob):
@@ -150,6 +155,16 @@ class Node(object):
                 pos_start,
                 length)
 
+    def load_from_open_file(self, df):
+        """
+        Given an open filehandle, read in our data.  Returns the data that we've
+        loaded.
+        """
+        df.seek(self.pos_start)
+        self.data = df.read(self.length).decode('latin1').splitlines()
+        self.loaded = True
+        return self.data
+
     def load(self):
         """
         Loads ourselves from our data file
@@ -159,10 +174,7 @@ class Node(object):
         if self.filename:
             try:
                 with lzma.open(os.path.join('resources', self.game, 'dumps', self.filename), 'rb') as df:
-                    df.seek(self.pos_start)
-                    self.data = df.read(self.length).decode('latin1').splitlines()
-                    self.loaded = True
-                    return self.data
+                    return self.load_from_open_file(df)
             except Exception as e:
                 return ['ERROR!  Could not load data: {}'.format(str(e))]
 
@@ -378,11 +390,12 @@ class Data(object):
 
     def get_all_by_type(self, obj_type):
         """
-        Returns a list of all objects of the given type.  Note that this is
-        not efficient at all, and doesn't cache anything - we will loop
-        through the whole file and match regexes each time this is called.
-        Also note that the object type is case-sensitive, and must match
-        the data filename.
+        Returns a list of all objects of the given type.  This is a bit
+        inefficient for two reasons: 1) regex, and 2) it reads the entire
+        file twice.  Still, better than we had before.  Data is saved in the
+        Node structure itself.  Note that the object type is case-sensitive,
+        and must match the data filename.  Returns a list of the objects
+        loaded.
         """
         objects = []
         with lzma.open(os.path.join('resources', self.game, 'dumps',
@@ -391,6 +404,11 @@ class Data(object):
                 match = re.match('^\*\*\* Property dump for object \'\S+ (\S+)\'.*$', line)
                 if match:
                     objects.append(match.group(1))
+        with lzma.open(os.path.join('resources', self.game, 'dumps',
+                '{}.dump.xz'.format(obj_type)), 'rb') as df:
+            for object_name in objects:
+                node = self.get_node_by_full_object(object_name)
+                node.load_from_open_file(df)
         return objects
 
     def get_node_paths_by_full_object(self, name):
