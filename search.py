@@ -60,6 +60,12 @@ parser.add_argument('-i', '--ignoreself',
     help='If searching for a specific object name, omit that object itself, and any child objects of it',
     )
 
+parser.add_argument('-r', '--refs',
+    action='store_true',
+    default=False,
+    help='Search for references to the given object (is functionally pretty similar to --ignoreself)',
+    )
+
 parser.add_argument('game',
     choices=['bl2', 'tps'],
     help='Which game to search',
@@ -73,6 +79,11 @@ args = parser.parse_args()
 
 game = args.game.upper()
 search_str = args.searchstr.lower()
+ignore_search_str = None
+if args.ignoreself:
+    ignore_search_str = search_str
+if args.refs:
+    search_str = "'{}'".format(search_str)
 
 # Set up colors
 if args.nocolor:
@@ -103,9 +114,9 @@ with os.scandir(os.path.join('resources', game, 'dumps')) as it:
                     if match:
                         cur_type = match.group(1)
                         cur_obj = match.group(2)
-                        if args.ignoreself and cur_obj.lower().startswith(search_str):
-                            if len(cur_obj) > len(search_str):
-                                if cur_obj[len(search_str)] in ignorechars:
+                        if args.ignoreself and cur_obj.lower().startswith(ignore_search_str):
+                            if len(cur_obj) > len(ignore_search_str):
+                                if cur_obj[len(ignore_search_str)] in ignorechars:
                                     cur_type = None
                                     cur_obj = None
                             else:
