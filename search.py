@@ -54,6 +54,12 @@ color_group.add_argument('-d', '--dark',
     help='Colorize based on a dark-background terminal',
     )
 
+parser.add_argument('-i', '--ignoreself',
+    action='store_true',
+    default=False,
+    help='If searching for a specific object name, omit that object itself, and any child objects of it',
+    )
+
 parser.add_argument('game',
     choices=['bl2', 'tps'],
     help='Which game to search',
@@ -81,6 +87,9 @@ else:
         color_type = colorama.Fore.BLUE + colorama.Style.NORMAL
         color_obj = colorama.Fore.YELLOW + colorama.Style.DIM
 
+# next-char values which will trigger ignoreself
+ignorechars = set([':', '.'])
+
 # Loop through and search
 with os.scandir(os.path.join('resources', game, 'dumps')) as it:
     for entry in sorted(it, key=lambda e: getattr(e, 'name').lower()):
@@ -94,6 +103,14 @@ with os.scandir(os.path.join('resources', game, 'dumps')) as it:
                     if match:
                         cur_type = match.group(1)
                         cur_obj = match.group(2)
+                        if args.ignoreself and cur_obj.lower().startswith(search_str):
+                            if len(cur_obj) > len(search_str):
+                                if cur_obj[len(search_str)] in ignorechars:
+                                    cur_type = None
+                                    cur_obj = None
+                            else:
+                                cur_type = None
+                                cur_obj = None
                         found_result = False
                     if not found_result and cur_obj and cur_type and search_str in line.lower():
                         found_result = True
