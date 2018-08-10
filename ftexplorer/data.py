@@ -368,6 +368,121 @@ class Data(object):
     Top-level data object to hold everything we're interested in.
     """
 
+    # Some hardcoded data, don't bother querying for this.
+    levels = {
+        'BL2': [
+            ('Ardorton Station', 'Sage_PowerStation_P'),
+            ('Arena (final boss)', 'Iris_DL1_TAS_P'),
+            ('Arena', 'Iris_DL1_P'),
+            ('Arid Nexus - Badlands', 'Stockade_P'),
+            ('Arid Nexus - Boneyard', 'Fyrestone_P'),
+            ('Badass Crater Bar', 'Iris_Moxxi_P'),
+            ('Badass Crater of Badassitude', 'Iris_Hub_P'),
+            ('Beatdown', 'Iris_DL2_P'),
+            ('Bloodshot Ramparts', 'DamTop_P'),
+            ('Bloodshot Stronghold', 'Dam_P'),
+            ('Bunker', 'Boss_Cliffs_P'),
+            ('Candlerakk\'s Crag', 'Sage_Cliffs_P'),
+            ('Caustic Caverns', 'Caverns_P'),
+            ('Control Core Angel', 'VOGChamber_P'),
+            ('Dark Forest', 'Dark_Forest_P'),
+            ('Dragon Keep', 'CastleKeep_P'),
+            ('Dust', 'Interlude_P'),
+            ('End of the Line', 'TundraTrain_P'),
+            ('Eridium Blight', 'Ash_P'),
+            ('Fink\'s Slaughterhouse', 'BanditSlaughter_P'),
+            ('Flamerock Refuge', 'Village_P'),
+            ('Forge', 'Iris_DL3_P'),
+            ('Fridge', 'Fridge_P'),
+            ('Friendship Gulag', 'HypInterlude_P'),
+            ('Frostburn Canyon', 'IceCanyon_P'),
+            ('Gluttony Gulch', 'Hunger_P'),
+            ('H.S.S. Terminus', 'Sage_HyperionShip_P'),
+            ('Hallowed Hollow', 'Pumpkin_Patch_P'),
+            ('Hatred\'s Shadow', 'CastleExterior_P'),
+            ('Hayter\'s Folly', 'Orchid_Caves_P'),
+            ('Hero\'s Pass', 'FinalBossAscent_P'),
+            ('Highlands Outwash', 'Outwash_P'),
+            ('Highlands', 'Grass_P'),
+            ('Holy Spirits', 'Luckys_P'),
+            ('Hunter\'s Grotto', 'Sage_Underground_P'),
+            ('Immortal Woods', 'Dead_Forest_P'),
+            ('Lair of Infinite Agony', 'Dungeon_P'),
+            ('Leviathan\'s Lair', 'Orchid_WormBelly_P'),
+            ('Lynchwood', 'Grass_Lynchwood_P'),
+            ('Magnys Lighthouse', 'Orchid_Spire_P'),
+            ('Marcus\'s Mercenary Shop', 'Xmas_P'),
+            ('Mines of Avarice', 'Mines_P'),
+            ('Murderlin\'s Temple', 'TempleSlaughter_P'),
+            ('Natural Selection Annex', 'CreatureSlaughter_P'),
+            ('Oasis', 'Orchid_OasisTown_P'),
+            ('Opportunity', 'HyperionCity_P'),
+            ('Ore Chasm', 'RobotSlaughter_P'),
+            ('Pyro Pete\'s Bar', 'Iris_DL2_Interior_P'),
+            ('Raid on Digistruct Peak', 'TestingZone_P'),
+            ('Rotgut Distillery', 'Distillery_P'),
+            ('Rustyards', 'Orchid_ShipGraveyard_P'),
+            ('Sanctuary (post liftoff)', 'SanctuaryAir_P'),
+            ('Sanctuary (pre liftoff)', 'Sanctuary_P'),
+            ('Sanctuary Hole', 'Sanctuary_Hole_P'),
+            ('Sawtooth Cauldron', 'CraterLake_P'),
+            ('Scylla\'s Grove', 'Sage_RockForest_P'),
+            ('Southern Raceway', 'Iris_Hub2_P'),
+            ('Southern Shelf - Bay', 'Cove_P'),
+            ('Southern Shelf', 'SouthernShelf_P'),
+            ('Southpaw Steam + Power', 'SouthpawFactory_P'),
+            ('Terramorphous Peak', 'ThresherRaid_P'),
+            ('Thousand Cuts', 'Grass_Cliffs_P'),
+            ('Three Horns Divide', 'Ice_P'),
+            ('Three Horns Valley', 'Frost_P'),
+            ('Tundra Express', 'TundraExpress_P'),
+            ('Unassuming Docks', 'Docks_P'),
+            ('Vault of the Warrior', 'Boss_Volcano_P'),
+            ('Wam Bam Island', 'Easter_P'),
+            ('Washburne Refinery', 'Orchid_Refinery_P'),
+            ('Wildlife Exploitation Preserve', 'PandoraPark_P'),
+            ('Windshear Waste', 'Glacial_P'),
+            ('Winged Storm', 'DungeonRaid_P'),
+            ('Wurmwater', 'Orchid_SaltFlats_P'),
+            ],
+        'TPS': [
+            ('Abandoned Training Facility', 'MoonSlaughter_P'),
+            ('Cluster 00773 P4ND0R4', 'Ma_LeftCluster_P'),
+            ('Cluster 99002 0V3RL00K', 'Ma_RightCluster_P'),
+            ('Concordia', 'Spaceport_P'),
+            ('Cortex', 'Ma_SubBoss_P'),
+            ('Crisis Scar', 'ComFacility_P'),
+            ('Deck 13 1/2', 'Ma_Deck13_P'),
+            ('Deck 13.5', 'Ma_FinalBoss_P'),
+            ('Eleseer', 'InnerCore_P'),
+            ('Eye of Helios', 'LaserBoss_P'),
+            ('Helios Station', 'MoonShotIntro_P'),
+            ('Holodome', 'Eridian_Slaughter_P'),
+            ('Hyperion Hub of Heroism', 'CentralTerminal_P'),
+            ('Jack\'s Office', 'JacksOffice_P'),
+            ('Lunar Launching Station', 'Laser_P'),
+            ('Meriff\'s Office', 'Meriff_P'),
+            ('Motherlessboard', 'Ma_Motherboard_P'),
+            ('Nexus', 'Ma_Nexus_P'),
+            ('Outfall Pumping Station', 'Digsite_Rk5arena_P'),
+            ('Outlands Canyon', 'Outlands_P2'),
+            ('Outlands Spur', 'Outlands_P'),
+            ('Pity\'s Fall', 'Wreck_P'),
+            ('Regolith Range', 'Deadsurface_P'),
+            ('Research and Development', 'RandDFacility_P'),
+            ('Serenity\'s Waste', 'Moonsurface_P'),
+            ('Stanton\'s Liver', 'StantonsLiver_P'),
+            ('Sub-Level 13', 'Sublevel13_P'),
+            ('Subconscious', 'Ma_Subconscious_P'),
+            ('Titan Industrial Facility', 'DahlFactory_P'),
+            ('Titan Robot Production Plant', 'DahlFactory_Boss'),
+            ('Triton Flats', 'Moon_P'),
+            ('Tycho\'s Ribs', 'Access_P'),
+            ('Veins of Helios', 'InnerHull_P'),
+            ('Vorago Solitude', 'Digsite_P'),
+            ],
+    }
+
     def __init__(self, game):
 
         self.top = Node('')
@@ -482,6 +597,13 @@ class Data(object):
         node itself.
         """
         return [(name, self.get_node_by_full_object(name)) for name in self.get_level_package_names(levelname)]
+
+    def get_levels(self):
+        """
+        Returns a list of tuples of the form (english_name, level_package)
+        for the current game.
+        """
+        return self.levels[self.game]
 
     @staticmethod
     def get_attr_obj(name):
