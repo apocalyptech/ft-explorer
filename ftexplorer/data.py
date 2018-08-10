@@ -303,7 +303,24 @@ class Node(object):
 
             return newdict
         else:
-            parts = value.split(',')
+
+            # Check for quoted values, and don't split commas inside them.
+            # Also don't try to parse mismatched quotes.  We're just being
+            # even more stupid about it and converting commas in quotes to
+            # unicode snowmen, temporarily
+            new_value = value
+            replace_comma = u"\u2603"
+            quote_parts = value.split('"')
+            if len(quote_parts) > 1 and len(quote_parts) % 2 == 1:
+                new_val_list = []
+                for (idx, part) in enumerate(quote_parts):
+                    if idx % 2 == 1:
+                        new_val_list.append(part.replace(',', replace_comma))
+                    else:
+                        new_val_list.append(part)
+                new_value = '"'.join(new_val_list)
+
+            parts = [p.replace(replace_comma, ',') for p in new_value.split(',')]
             if len(parts) == 1:
                 # See the comment on the other side of the `if` here.  We may have
                 # a single-element dict.
