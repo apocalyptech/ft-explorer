@@ -77,6 +77,16 @@ update the indexes that the app uses to avoid having to load all the data
 into memory at once.  Note that index generation takes quite awhile, since
 I've not bothered to try optimizing it.
 
+Included Data
+-------------
+
+FT/BLCMM Explorer bundles nearly all of the "useful" data available in
+BLCMM.  We explicitly don't include the `StaticMeshes` and `WillowData`
+datasets, since those aren't generally useful and are huge.  Also, most
+(all?) Particle data isn't actually included in here either.  There's a
+small handful of other classes which got pruned out as well, though I
+wonder if I should go ahead and just add those in.
+
 Setting the Font
 ----------------
 
@@ -108,6 +118,10 @@ convinced to spend some more effort on it.
 
 Some things which are at least somewhat likely to happen:
 
+* With the most recent BLCMM data bundled, the app startup (and switching
+  between games) takes a bit longer than I'd really like it to.  Take a
+  look at some different indexing options to see if we can split that up
+  a bit.
 * See if there's a way to support doing keyboard things like shift-End to
   select a whole line, etc, without having to disable readonly mode.
 
