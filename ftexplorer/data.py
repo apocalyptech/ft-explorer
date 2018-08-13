@@ -622,6 +622,16 @@ class Data(object):
         """
         return self.levels[self.game]
 
+    def get_level_name(self, level_id):
+        """
+        Given a level ID, return the english level name.  This is stupid, should
+        really have a dict for this.  Returns None if it's not found.
+        """
+        for (english_name, level_package) in self.levels[self.game]:
+            if level_package.lower() == level_id.lower():
+                return english_name
+        return None
+
     @staticmethod
     def get_attr_obj(name):
         if "'" in name:

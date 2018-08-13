@@ -2274,7 +2274,7 @@ sequences_per_level = {
     },
 }
 
-game = 'BL2'
+game = 'TPS'
 data = Data(game)
 for (label, level) in data.get_levels():
     event_names = {}
@@ -2291,13 +2291,23 @@ for (label, level) in data.get_levels():
             if len(event_names[event_name]) > 1:
                 more_than_one.add(event_name)
 
-    print('{} ({})'.format(label, level))
-    if len(more_than_one) > 0:
-        for event_name in sorted(more_than_one):
-            print(' * {}: {}'.format(event_name, len(event_names[event_name])))
-            for inner in event_names[event_name]:
-                print('    - {}'.format(inner))
-            del event_names[event_name]
+    # Human output
+    #print('{} ({})'.format(label, level))
+    #if len(more_than_one) > 0:
+    #    for event_name in sorted(more_than_one):
+    #        print(' * {}: {}'.format(event_name, len(event_names[event_name])))
+    #        for inner in event_names[event_name]:
+    #            print('    - {}'.format(inner))
+    #        del event_names[event_name]
+    #for event_name in sorted(event_names.keys()):
+    #    print(' - {}: {}'.format(event_name, event_names[event_name][0]))
+    #print('')
+
+    # Python output
+    print('\'{}\': {{'.format(level.lower()))
     for event_name in sorted(event_names.keys()):
-        print(' - {}: {}'.format(event_name, event_names[event_name][0]))
-    print('')
+        print('    \'{}\': ['.format(event_name.lower()))
+        for inner in event_names[event_name]:
+            print('        \'{}\','.format(inner))
+        print('    ],')
+    print('},')
