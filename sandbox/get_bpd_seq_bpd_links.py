@@ -62,6 +62,9 @@ for obj_name in sorted(objects):
             # ourselves.
             if 'Behavior_RemoteCustomEvent' in obj_name:
                 continue
+            # Temp: only looking for CustomEvents
+            if 'Behavior_RemoteEvent' not in obj_name:
+                continue
             to_dict = bpd_to_events
             (base_obj, rest) = obj_name.lower().rsplit('.', 1)
         elif ':PersistentLevel' in obj_name:
@@ -142,9 +145,20 @@ if False:
                                             ))
 
 # Looking for seqacts which link to their own kismet
-if True:
+if False:
     for kismet in sorted(seqact_to_events.keys()):
         for kismet_event in sorted(seqact_to_events[kismet]):
             if kismet_event in events_kismet:
                 for dest_kismet in events_kismet[kismet_event]:
                     print('{} ({}) -> {}'.format(kismet, kismet_event, dest_kismet))
+
+# Looking for BPD CustomEvent which goes to kismet
+if True:
+    for bpd in sorted(bpd_to_events.keys()):
+        for bpd_event in sorted(bpd_to_events[bpd]):
+            if bpd_event in events_kismet:
+                for kismet in sorted(events_kismet[bpd_event]):
+                    print('{} ({}) -> {}'.format(
+                        bpd, bpd_event,
+                        kismet,
+                        ))
