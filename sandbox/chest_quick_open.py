@@ -9,7 +9,7 @@ def get_twos_compliment(val):
     two = val & 0xFF
     return (one, two)
 
-data = Data('BL2')
+data = Data('TPS')
 for obj_name in sorted(data.get_all_by_type('InteractiveObjectDefinition')):
     obj_struct = data.get_struct_by_full_object(obj_name)
     bpd_name = Data.get_struct_attr_obj(obj_struct, 'BehaviorProviderDefinition')
@@ -26,16 +26,18 @@ for obj_name in sorted(data.get_all_by_type('InteractiveObjectDefinition')):
                 for cold_idx in range(start_idx, start_idx+count):
                     cold = seq['ConsolidatedOutputLinkData'][cold_idx]
                     if cold['ActivateDelay'] != '0.000000':
+                        ad = float(cold['ActivateDelay'])
                         (link_id, behavior_idx) = get_twos_compliment(cold['LinkIdAndLinkedBehavior'])
                         behavior = seq['BehaviorData2'][int(behavior_idx)]
                         if 'AttachItems' in behavior['Behavior']:
                             if not shown_title:
                                 print(obj_name)
                                 shown_title = True
-                            print('set {} BehaviorSequences[{}].ConsolidatedOutputLinkData[{}].ActivateDelay 0'.format(
+                            print('set {} BehaviorSequences[{}].ConsolidatedOutputLinkData[{}].ActivateDelay {:0.6f}'.format(
                                 bpd_name,
                                 seq_idx,
                                 cold_idx,
+                                ad/5.0,
                                 ))
 
         # Output a statement to ensure that attached items are immediately
