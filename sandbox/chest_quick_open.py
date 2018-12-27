@@ -9,7 +9,7 @@ def get_twos_compliment(val):
     two = val & 0xFF
     return (one, two)
 
-data = Data('TPS')
+data = Data('BL2')
 for obj_name in sorted(data.get_all_by_type('InteractiveObjectDefinition')):
     obj_struct = data.get_struct_by_full_object(obj_name)
     bpd_name = Data.get_struct_attr_obj(obj_struct, 'BehaviorProviderDefinition')
