@@ -6,7 +6,15 @@ from ftexplorer.data import Data
 def get_sequences_recurs(data, obj_name):
     to_return = set([obj_name])
     #print(obj_name)
-    obj_struct = data.get_struct_by_full_object(obj_name)
+    try:
+        obj_struct = data.get_struct_by_full_object(obj_name)
+    except KeyError:
+        # Fyrestone_Dynamic.TheWorld:PersistentLevel.Main_Sequence.YouDontKnowJack
+        # references:
+        # Fyrestone_Dynamic.TheWorld:PersistentLevel.Main_Sequence.YouDontKnowJack.Windmill
+        # ... which doesn't seem to exist.  Didn't do that on previous, pre-DLC5
+        # data?
+        return to_return
     seq_list = []
     if 'SequenceObjects' in obj_struct:
         seq_list.extend(obj_struct['SequenceObjects'])
