@@ -138,7 +138,7 @@ Some things which are absolutely not going to happen:
 Credits
 -------
 
-The bundled pre-dumped object data is taken from BLCMM, by
+The bundled pre-dumped object data for TPS is taken from BLCMM, by
 [LightChaosman](https://www.youtube.com/channel/UCgJ6TA5sZ_Rwc1LPDYbQT1Q), and
 is included with their gracious consent.
 
