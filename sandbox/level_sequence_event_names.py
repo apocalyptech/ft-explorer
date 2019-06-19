@@ -2496,7 +2496,7 @@ for (label, level) in data.get_levels():
     # Python output
     print('\'{}\': {{'.format(level.lower()))
     for event_name in sorted(event_names.keys()):
-        print('    \'{}\': ['.format(event_name.lower()))
+        print('    \'{}\': ['.format(event_name.lower().replace("'", "\\'")))
         for inner in event_names[event_name]:
             print('        \'{}\','.format(inner))
         print('    ],')
