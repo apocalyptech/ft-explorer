@@ -1232,25 +1232,21 @@ sequences_per_level = {
             'Helios_VFX.TheWorld:PersistentLevel.Main_Sequence',
             'Helios_Warehouse_Rockets.TheWorld:PersistentLevel.Main_Sequence',
             ],
-        'GaiusSanctuary_P': [
-            'GAIUSSANCTUARY_DEBUG.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Audio.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Boss.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Catwalk.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Cinema.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Interactive.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Light.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_MarcusHQ.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_MissionMain.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_MissionMain.TheWorld:PersistentLevel.Main_Sequence.HectorBossFightLogic',
-            'GaiusSanctuary_MissionSide.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Moxxi.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Nav.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_P.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Reactor.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_Scooter.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_SkyBox.TheWorld:PersistentLevel.Main_Sequence',
-            'GaiusSanctuary_VFX.TheWorld:PersistentLevel.Main_Sequence',
+        'SanctIntro_P': [
+            'SANCTINTRO_AUDIO.TheWorld:PersistentLevel.Main_Sequence',
+            'SANCTINTRO_DEBUG.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Cinema.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Combat.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Dynamic.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Interactive.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Light.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Loot.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_MissionMain.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_MissionSide.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_Nav.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_P.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_SkyBox.TheWorld:PersistentLevel.Main_Sequence',
+            'SanctIntro_VFX.TheWorld:PersistentLevel.Main_Sequence',
             ],
         'BanditSlaughter_P': [
             'BanditSlaughter_Audio.TheWorld:PersistentLevel.Main_Sequence',
@@ -1707,6 +1703,30 @@ sequences_per_level = {
             'Mines_P.TheWorld:PersistentLevel.Main_Sequence.temp_moveTOMission',
             'Mines_Skybox.TheWorld:PersistentLevel.Main_Sequence',
             ],
+        'ResearchCenter_P': [
+            'ResearchCenter_Audio.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Boss.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Cinema.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Dev.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Entrance.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Exterior.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Interactive.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Lift.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Light.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_MissionMain.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_MissionMain.TheWorld:PersistentLevel.Main_Sequence.PlotMission050',
+            'ResearchCenter_MissionMain.TheWorld:PersistentLevel.Main_Sequence.PlotMission060',
+            'ResearchCenter_MissionSide.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_MissionSide.TheWorld:PersistentLevel.Main_Sequence.BFFFs',
+            'ResearchCenter_MissionSide.TheWorld:PersistentLevel.Main_Sequence.Echoes',
+            'ResearchCenter_Nav.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_P.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_P.TheWorld:PersistentLevel.Main_Sequence.LevelChallenges',
+            'ResearchCenter_Prison.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_Research.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_SkyBox.TheWorld:PersistentLevel.Main_Sequence',
+            'ResearchCenter_VFX.TheWorld:PersistentLevel.Main_Sequence',
+            ],
         'TempleSlaughter_P': [
             'TempleSlaughter_Audio.TheWorld:PersistentLevel.Main_Sequence',
             'TempleSlaughter_Combat.TheWorld:PersistentLevel.Main_Sequence',
@@ -1800,6 +1820,26 @@ sequences_per_level = {
             'RobotSlaughter_Light.TheWorld:PersistentLevel.Main_Sequence',
             'RobotSlaughter_P.TheWorld:PersistentLevel.Main_Sequence',
             'RobotSlaughter_Skybox.TheWorld:PersistentLevel.Main_Sequence',
+            ],
+        'GaiusSanctuary_P': [
+            'GAIUSSANCTUARY_DEBUG.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Audio.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Boss.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Catwalk.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Cinema.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Interactive.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Light.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_MarcusHQ.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_MissionMain.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_MissionMain.TheWorld:PersistentLevel.Main_Sequence.HectorBossFightLogic',
+            'GaiusSanctuary_MissionSide.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Moxxi.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Nav.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_P.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Reactor.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_Scooter.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_SkyBox.TheWorld:PersistentLevel.Main_Sequence',
+            'GaiusSanctuary_VFX.TheWorld:PersistentLevel.Main_Sequence',
             ],
         'Iris_DL2_Interior_P': [
             'Iris_DL2_Interior_Audio.TheWorld:PersistentLevel.Main_Sequence',
@@ -2431,11 +2471,7 @@ for (label, level) in data.get_levels():
     more_than_one = set()
     sequences = sequences_per_level[game][level]
     for sequence_name in sequences:
-        try:
-            # see comments in sequences_per_level.py
-            node = data.get_node_by_full_object(sequence_name)
-        except KeyError:
-            next
+        node = data.get_node_by_full_object(sequence_name)
         for child in node.get_children_with_name('SeqEvent_RemoteEvent'):
             child_struct = child.get_structure()
             event_name = child_struct['EventName']
