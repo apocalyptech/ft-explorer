@@ -653,3 +653,10 @@ class Data(object):
             if node_struct[name] != 'None':
                 return Data.get_attr_obj(node_struct[name])
         return None
+
+    def get_struct_attr_obj_real(self, node_struct, name):
+        obj_name = Data.get_struct_attr_obj(node_struct, name)
+        if obj_name:
+            return self.get_struct_by_full_object(obj_name)
+        else:
+            return None

@@ -5,27 +5,41 @@ import re
 import sys
 from ftexplorer.data import Data
 
-data = Data('TPS')
-
 # Pools we're using
+#data = Data('TPS')
+#pools = [
+#        ('Shields', 'shield'),
+#        ('All Weapons', 'all'),
+#        ('AR-Weighted', 'ar'),
+#        ('Launchers Only', 'launcher'),
+#        ('Shotguns Only', 'shotgun'),
+#        ('Snipers Only', 'sniper'),
+#        ('Lasers Only', 'laser_only'),
+#        ('Laser-Weighted', 'laser'),
+#    ]
+data = Data('BL2')
 pools = [
-        ('Shields', 'shield'),
-        ('All Weapons', 'all'),
         ('AR-Weighted', 'ar'),
-        ('Launchers Only', 'launcher'),
-        ('Shotguns Only', 'shotgun'),
-        ('Snipers Only', 'sniper'),
-        ('Lasers Only', 'laser_only'),
-        ('Laser-Weighted', 'laser'),
+        ('Pistol-Weighted', 'pistols'),
+        ('Shotgun-Weighted', 'shotguns'),
+        ('SMG-Weighted', 'smg'),
+        ('All Weapons', 'all'),
+        ('Launchers Only', 'launchers'),
+        ('Snipers Only', 'snipers'),
+        ('Shotguns Only', 'only_shotguns'),
+        ('ARs Only', 'only_ar'),
+        ('Shields', 'shields'),
     ]
 
 # Read in categories
 categories = {}
 #filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use.txt'
-filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use_dahl.txt'
+#filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use_dahl.txt'
 #filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use_shields_guardians.txt'
 #filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use_shields_claptrap.txt'
 #filename = '/home/pez/Programs/games/borderlands_tps/ucp/enemy_use_shields_stalkers.txt'
+#filename = '/home/pez/Programs/games/borderlands_2/ucp/enemy_use_dlc5.txt'
+filename = '/home/pez/Programs/games/borderlands_2/ucp/enemy_use_dlc5_take2.txt'
 with open(filename) as df:
     while True:
         category = df.readline().strip()

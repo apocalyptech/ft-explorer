@@ -5,7 +5,7 @@
 import sys
 from ftexplorer.data import Data
 
-data = Data('TPS')
+data = Data('BL2')
 baldef_names = data.get_all_by_type('InventoryBalanceDefinition') + \
         data.get_all_by_type('WeaponBalanceDefinition')
 
