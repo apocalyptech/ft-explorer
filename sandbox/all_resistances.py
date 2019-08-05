@@ -60,7 +60,7 @@ class Attribute(object):
 
     def get_labels(self):
         if self.useless:
-            suffix = ' (does nothing)'
+            suffix = ' (cannot be modded)'
         else:
             suffix = ''
         labels = ['{} Impact Damage{}'.format(self.name, suffix)]
