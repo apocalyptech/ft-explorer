@@ -33,6 +33,10 @@ import lzma
 import json
 
 class Weight(object):
+    """
+    Compute a weight.  (Or, really, just a BVC/BVA/ID/BVSC tuple.  They're
+    only sometimes used as Weights.)
+    """
 
     ids = {
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_0_VeryCommon'": 200,
@@ -43,10 +47,6 @@ class Weight(object):
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_5_VeryRare'": .1,
             "AttributeInitializationDefinition'GD_Balance.Weighting.Weight_6_Legendary'": .03,
 
-            # For now, assuming Normal/PT1
-            "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough1Only'": 1,
-            "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough2Only'": 0,
-
             # Not really sure what to do with this one; we'll just assume it's 1.
             "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Enemy_MajorUpgrade_PerPlayer'": 1,
 
@@ -54,9 +54,53 @@ class Weight(object):
             # numbers end up looking like, but we'll just say 1.  I can't imagine it
             # goes lower than that.
             "AttributeInitializationDefinition'GD_Ma_Mutator.Attributes.Init_EnemyHealth_Torment'": 1,
+
+            # Some XP vars...  I think I've got these right?
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_01_Chump'": 0.5,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_02_Normal'": 0.75,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_03_NormalHigh'": 1,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_04_Tough'": 1.25,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_05_ToughHigh'": 1.5,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_06_Badass'": 3,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_07_SuperBadass'": 10,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_08_UltimateBadass'": 20,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_09_Boss'": 40,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_01_Chump_Orchid'": 0.5,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_02_Normal_Orchid'": 0.75,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_03_NormalHigh_Orchid'": 1,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_04_Tough_Orchid'": 1.25,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_05_ToughHigh_Orchid'": 1.5,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_06_Badass_Orchid'": 3,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_07_SuperBadass_Orchid'": 10,
+            "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_09_Boss_Orchid'": 40,
         }
 
-    def __init__(self, prob):
+    # Stuff which depends on playthrough
+    ids_pt = {
+        "AttributeInitializationDefinition'GD_Balance_HealthAndDamage.DamageMultipliers.Init_HighElementResistMultiplier_ByPlaythrough'": {
+            1: 0.75,
+            2: 0.4,
+            },
+        "AttributeInitializationDefinition'GD_Balance_HealthAndDamage.DamageMultipliers.Init_CorrosiveBonusDamageMultiplier_ByPlaythrough'": {
+            1: 1.5,
+            2: 1.75,
+            },
+        "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough1Only'": {
+            1: 1,
+            2: 0,
+            },
+        "AttributeInitializationDefinition'GD_Balance.WeightingPlayerCount.Playthrough2Only'": {
+            1: 0,
+            2: 0.3,
+            }
+        }
+
+    def __init__(self, prob, pt=None):
+        """
+        Initialize our weight using the given `prob` dict.
+        """
+
+        self.pt = pt
         if prob['BaseValueAttribute'] != 'None':
             raise Exception('Cannot handle BVA at the moment')
         if prob['InitializationDefinition'] == 'None':
@@ -64,6 +108,8 @@ class Weight(object):
         else:
             if prob['InitializationDefinition'] in self.ids:
                 self.bvc = self.ids[prob['InitializationDefinition']]
+            elif prob['InitializationDefinition'] in self.ids_pt:
+                self.bvc = self.ids_pt[prob['InitializationDefinition']][self.pt]
             else:
                 raise Exception('Not found in known IDs: {}'.format(prob['InitializationDefinition']))
         self.bvsc = round(float(prob['BaseValueScaleConstant']), 6)
@@ -131,6 +177,12 @@ class Node(object):
         if self.child_keys is None:
             self.child_keys = sorted(self.children.keys(), key=str.lower)
         return self.children[self.child_keys[item]]
+
+    def __lt__(self, other):
+        """
+        Sorting, case-insensitively by name
+        """
+        return self.name.lower() < other.name.lower()
 
     def start_data(self, obj_name_parts, game, filename, pos_start, length):
         """
@@ -581,6 +633,8 @@ class Data(object):
             if test_name in cur_node.children:
                 cur_node = cur_node.children[test_name]
                 paths.append(cur_node)
+                if len(components) == 1 and components[0][-1] == '*':
+                    return paths
 
         # Now iterate
         for component in components:
