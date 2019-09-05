@@ -65,6 +65,7 @@ class Weight(object):
             "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_07_SuperBadass'": 10,
             "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_08_UltimateBadass'": 20,
             "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_09_Boss'": 40,
+            "AttributeInitializationDefinition'GD_AI_Balance.XP.XPMultiplier_10_RaidBoss'": 50,
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_01_Chump_Orchid'": 0.5,
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_02_Normal_Orchid'": 0.75,
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_03_NormalHigh_Orchid'": 1,
@@ -73,6 +74,11 @@ class Weight(object):
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_06_Badass_Orchid'": 3,
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_07_SuperBadass_Orchid'": 10,
             "AttributeInitializationDefinition'GD_Orchid_GameStages.XPBalance.XPMultiplier_09_Boss_Orchid'": 40,
+
+            # TPS Mutator arena stuff.  I think setting these to 1 should ensure that they make no
+            # change, which is more or less what we'll always want.
+            "AttributeInitializationDefinition'GD_Ma_Mutator.Attributes.Init_EnemyHealth_Torment'": 1,
+            "AttributeInitializationDefinition'GD_Ma_Mutator.Attributes.Init_EnemyShields_Torment'": 1,
         }
 
     # Stuff which depends on playthrough
