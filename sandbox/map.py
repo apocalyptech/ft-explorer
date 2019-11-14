@@ -6,14 +6,14 @@ import sys
 import math
 from ftexplorer.data import Data
 
-data = Data('BL2')
+data = Data('TPS')
 
 # find all objects a certain distance from the given point
-level_package = 'Grass_Cliffs_P'
-x = -17621
-y = 990
-z = 1555
-distance = 600
+level_package = 'Ma_SubBoss_P'
+x = -13891
+y = 8333
+z = -33
+distance = 400
 
 def is_close(obj_x, obj_y, obj_z):
     global x

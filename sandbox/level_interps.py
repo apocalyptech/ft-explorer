@@ -14,7 +14,7 @@ from ftexplorer.data import Data
 level_name_arg = sys.argv[1]
 
 # Cache info if we haven't already
-game = 'BL2'
+game = 'TPS'
 data = Data(game)
 cache_filename = 'level_interps_{}.json.xz'.format(game)
 if not os.path.exists(cache_filename):
@@ -42,7 +42,9 @@ for interp_name in level_interps[level_name_arg]:
     interp_data = data.get_struct_by_full_object(interp_name)
     playrate = interp_data['PlayRate']
     interp_vars = []
+    object_names = []
     data_vars = set()
+    report_seqvar_object_names = []
     interpdata_names = set()
     if 'VariableLinks' in interp_data and interp_data['VariableLinks'] != '' and interp_data['VariableLinks'] != 'None':
         for interp_var in interp_data['VariableLinks']:
@@ -63,10 +65,27 @@ for interp_name in level_interps[level_name_arg]:
                             pass
                         else:
                             data_vars.add('(empty)')
+                    elif 'SeqVar_Object' in linkedvar_name:
+                        seqvar_object_names = linkedvar_name.split(',')
+                        for seqvar_object_name in seqvar_object_names:
+                            seqvar_object_real_name = Data.get_attr_obj(seqvar_object_name)
+                            seqvar_object = data.get_struct_by_full_object(seqvar_object_real_name)
+                            if 'ObjValue' in seqvar_object and seqvar_object['ObjValue'] != '' and seqvar_object['ObjValue'] != 'None':
+                                objvalue_name = Data.get_attr_obj(seqvar_object['ObjValue'])
+                                try:
+                                    objvalue = data.get_struct_by_full_object(objvalue_name)
+                                    if 'ReplicatedMesh' in objvalue and objvalue['ReplicatedMesh'] != '' and objvalue['ReplicatedMesh'] != 'None':
+                                        report_seqvar_object_names.append((interp_var['LinkDesc'], Data.get_attr_obj(objvalue['ReplicatedMesh'])))
+                                except KeyError:
+                                    print('Error loading ObjValue from {}'.format(seqvar_object_real_name))
     print('{} - Play Rate: {}'.format(interp_name, playrate))
     print(' * Vars: {}'.format(', '.join(interp_vars)))
     if len(data_vars) > 0:
         print(' * InterpData Names: {}'.format(', '.join(data_vars)))
         print(' * (From: {})'.format(','.join(interpdata_names)))
+    if len(report_seqvar_object_names) > 0:
+        print(' * SeqVar_Object names:')
+        for (varname, object_name) in report_seqvar_object_names:
+            print('   * {}: {}'.format(varname, object_name))
     print('')
 
