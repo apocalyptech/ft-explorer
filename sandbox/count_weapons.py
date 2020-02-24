@@ -11,6 +11,11 @@ if len(sys.argv) > 1:
     if sys.argv[1][:2].lower() == '-v':
         verbose = True
 
+# TODO: Updated data packages for DLC5 made things a bit screwy; this probably
+# won't show the correct numbers anymore.  BL2 will need a *ton* of blacklists,
+# probably, and the new data package seems to have broken some TPS balances
+# as well, since I'd ended up regenerating my own TPS data as well.  Meh.
+
 blacklist = {
         'BL2': set([
             'GD_Allium_TG_Plot_M01Data.Weapons.Weapon_JabberSlagWeapon',
@@ -27,6 +32,13 @@ blacklist = {
             'GD_Weap_Scorpio.A_Weapon.WeapBalance_Scorpio',
             'GD_Weap_SniperRifles.A_Weapons.Sniper_Maliwan_4_Mordecai',
             'GD_Weap_SniperRifles.A_Weapons_Unique.Sniper_Gearbox_1',
+
+            # We should actually probably add a *lot* of Anemone balances to
+            # the blacklist.  Just doing any which are Actually Problematic
+            # right now, though.
+            'GD_Anemone_Weapons.A_Weapons.AR_Bandit_3_Rare_Alien_Shock',
+            'GD_Anemone_Weapons.A_Weapons.AR_Bandit_3_Rare_Alien_Slag',
+            'GD_Anemone_Weapons.Rocket_Launcher.RL_Maliwan_5_Pyrophobia',
             ]),
         'TPS': set([
             'Evyn_Test.A_Weapons.Pistol_Bandit_2_Uncommon_Ice',
@@ -75,6 +87,10 @@ blacklist = {
             'GD_Weap_SMG.A_Weapons_Unique.SMG_Gearbox_1',
             'GD_Weap_SniperRifles.A_Weapons_Unique.Sniper_Gearbox_1',
             'gd_cork_weap_assaultrifle.A_Weapons_Unique.AR_Starter_Vladof_Athena',
+
+            # Boo, updated data packages don't like these now:
+            'GD_Cork_Weap_SniperRifles.A_Weapons_Unique.Sniper_Jakobs_3_Trespasser',
+            'GD_Weap_Pistol.A_Weapons_Unique.Pistol_Maliwan_3_Rubi',
             ]),
     }
 
@@ -152,6 +168,12 @@ for game in ['BL2', 'TPS']:
                         ))
             total_count += gun_types
             total_count_no_luneshine += gun_types_no_luneshine
+            if verbose and game == 'TPS':
+                print('Running totals: {}, {} ({:0.1f}x)'.format(
+                    total_count,
+                    total_count_no_luneshine,
+                    total_count/total_count_no_luneshine,
+                    ))
 
     # Report on the total number of guns per game
     print('{}: {:,} unique guns'.format(game, total_count))
