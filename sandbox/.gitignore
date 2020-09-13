@@ -2,6 +2,7 @@
 *.blcm
 *.csv
 *.xz
+*.itempool
 resources
 ftexplorer
 modprocessor.py

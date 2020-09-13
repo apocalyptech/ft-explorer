@@ -66,3 +66,21 @@ for game in ['BL2', 'TPS']:
         print('', file=df)
     print('Wrote to {}'.format(out_file))
 
+    # Also output as loot-pool definitions for UnrealSDK applications
+    out_file = 'manufacturer_gear_pools_{}.itempool'.format(game.lower())
+    with open(out_file, 'w') as df:
+        for manuf, baldef_names in sorted(manufacturer_map.items()):
+            print('/None', file=df)
+            last_bit = manuf.split('.')[-1]
+            print('#GD_ItemPools_Shop.Items.{}'.format(last_bit), file=df)
+            for baldef_name in sorted(baldef_names):
+                print('ItemPoolDefinition None', file=df)
+                print('InvBalanceDefinition {}'.format(baldef_name), file=df)
+                print('BaseValueConstant 1.000000', file=df)
+                print('BaseValueAttribute None', file=df)
+                print('InitializationDefinition None', file=df)
+                print('BaseValueScaleConstant 1.000000', file=df)
+                print('bDropOnDeath True', file=df)
+            print('+', file=df)
+    print('Wrote to {}'.format(out_file))
+
