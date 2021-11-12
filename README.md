@@ -2,7 +2,7 @@ FilterTool/BLCMM Explorer (ft-explorer)
 =======================================
 
 This is a little Python 3 / PyQt5 application to enable browsing of the
-resource data used by the excellent Borderlands 2/TPS modding tool
+resource data used by the excellent Borderlands 2/TPS/AoDK modding tool
 [BLCMM](https://github.com/BLCM/BLCMods/wiki/Borderlands-Community-Mod-Manager).
 It was written when FilterTool was the tool for Borderlands mod management,
 hence this project's name, but BLCMM has since supplanted it.
@@ -157,3 +157,17 @@ It is available under the [MIT License](qdarkgraystyle/COPYING.txt).
 Redistribution of the bundled data in the `resources` directory should be
 cleared with LightChaosman first.  Try the
 [Shadow's Evil Hideout discord channel](https://discord.gg/0YjZxbVBS9b3bXUS).
+
+Changelog
+---------
+
+I didn't really keep a changelog for this for the majority of its development,
+since I was basically the only person to ever use the thing.  However, I
+may as well start doing so anyway:
+
+* Nov 12, 2021
+  * Added support for Assault on Dragon Keep standalone
+
+* *sometime prior to that*
+  * Initial release(s)
+

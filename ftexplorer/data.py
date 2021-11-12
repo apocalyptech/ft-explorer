@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set expandtab tabstop=4 shiftwidth=4:
 
-# Copyright (c) 2018, CJ Kucera
+# Copyright (c) 2018-2021, CJ Kucera
 # All rights reserved.
 #   
 # Redistribution and use in source and binary forms, with or without
@@ -527,6 +527,18 @@ class Data(object):
             ('Winged Storm', 'DungeonRaid_P'),
             ('Writhing Deep', 'SandwormLair_P'),
             ('Wurmwater', 'Orchid_SaltFlats_P'),
+            ],
+        'AoDK': [
+            ('Dark Forest', 'Dark_Forest_P'),
+            ('Dragon Keep', 'CastleKeep_P'),
+            ('Flamerock Refuge', 'Village_P'),
+            ('Hatred\'s Shadow', 'CastleExterior_P'),
+            ('Immortal Woods', 'Dead_Forest_P'),
+            ('Lair of Infinite Agony', 'Dungeon_P'),
+            ('Mines of Avarice', 'Mines_P'),
+            ('Murderlin\'s Temple', 'TempleSlaughter_P'),
+            ('Unassuming Docks', 'Docks_P'),
+            ('Winged Storm', 'DungeonRaid_P'),
             ],
         'TPS': [
             ('Abandoned Training Facility', 'MoonSlaughter_P'),

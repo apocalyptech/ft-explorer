@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set expandtab tabstop=4 shiftwidth=4:
 
-# Copyright (c) 2018, CJ Kucera
+# Copyright (c) 2018-2021, CJ Kucera
 # All rights reserved.
 #   
 # Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import colorama
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='Search through FT-Explorer\'s BL2/TPS data',
+    description='Search through FT-Explorer\'s BL2/TPS/AoDK data',
     )
 
 color_group = parser.add_mutually_exclusive_group()
@@ -67,7 +67,7 @@ parser.add_argument('-r', '--refs',
     )
 
 parser.add_argument('game',
-    choices=['bl2', 'tps'],
+    choices=['bl2', 'tps', 'aodk'],
     help='Which game to search',
     )
 
@@ -78,6 +78,8 @@ parser.add_argument('searchstr',
 args = parser.parse_args()
 
 game = args.game.upper()
+if game == 'AODK':
+    game = 'AoDK'
 search_str = args.searchstr.lower()
 ignore_search_str = None
 if args.ignoreself:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set expandtab tabstop=4 shiftwidth=4:
 
-# Copyright (c) 2018, CJ Kucera
+# Copyright (c) 2018-2021, CJ Kucera
 # All rights reserved.
 #   
 # Redistribution and use in source and binary forms, with or without
@@ -340,20 +340,25 @@ class DataDisplay(QtWidgets.QTextEdit):
 
 class GameSelect(QtWidgets.QComboBox):
     """
-    ComboBox to switch between BL2 and TPS data
+    ComboBox to switch between BL2/TPS/AoDK data
     """
 
-    def __init__(self, parent, maingui, data_bl2, data_tps):
+    def __init__(self, parent, maingui, data_bl2, data_tps, data_aodk):
         super().__init__(parent)
         self.maingui = maingui
         self.data_bl2 = data_bl2
         self.data_tps = data_tps
+        self.data_aodk = data_aodk
         self.addItem('Borderlands 2', data_bl2)
         self.addItem('Pre-Sequel', data_tps)
-        if self.maingui.settings.value('toggles/game', 'bl2') == 'bl2':
+        self.addItem('Dragon Keep (standalone)', data_aodk)
+        current_game = self.maingui.settings.value('toggles/game', 'bl2')
+        if current_game == 'bl2':
             self.setCurrentIndex(0)
-        else:
+        elif current_game == 'tps':
             self.setCurrentIndex(1)
+        else:
+            self.setCurrentIndex(2)
         self.currentIndexChanged.connect(self.index_changed)
         self.setSizeAdjustPolicy(self.AdjustToContents)
 
@@ -363,8 +368,10 @@ class GameSelect(QtWidgets.QComboBox):
         """
         if index == 0:
             self.maingui.settings.setValue('toggles/game', 'bl2')
-        else:
+        elif index == 1:
             self.maingui.settings.setValue('toggles/game', 'tps')
+        elif index == 2:
+            self.maingui.settings.setValue('toggles/game', 'aodk')
         self.maingui.switch_game(self.currentData())
 
 class MainToolBar(QtWidgets.QToolBar):
@@ -372,7 +379,7 @@ class MainToolBar(QtWidgets.QToolBar):
     Toolbar to hold a few toggles for us
     """
 
-    def __init__(self, parent, data_bl2, data_tps):
+    def __init__(self, parent, data_bl2, data_tps, data_aodk):
 
         super().__init__(parent)
 
@@ -398,7 +405,7 @@ class MainToolBar(QtWidgets.QToolBar):
         self.addWidget(spacer_label)
 
         # Game selection
-        self.game_select = GameSelect(self, parent, data_bl2, data_tps)
+        self.game_select = GameSelect(self, parent, data_bl2, data_tps, data_aodk)
         self.game_select.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.addWidget(self.game_select)
 
@@ -407,13 +414,14 @@ class GUI(QtWidgets.QMainWindow):
     Main application window
     """
 
-    def __init__(self, settings, data_bl2, data_tps, app):
+    def __init__(self, settings, data_bl2, data_tps, data_aodk, app):
         super().__init__()
 
         # Store our data
         self.settings = settings
         self.data_bl2 = data_bl2
         self.data_tps = data_tps
+        self.data_aodk = data_aodk
         self.data = None
         self.app = app
 
@@ -444,7 +452,7 @@ class GUI(QtWidgets.QMainWindow):
         find_next_return.activated.connect(self.action_find_next)
 
         # Load our toolbar
-        self.toolbar = MainToolBar(self, data_bl2, data_tps)
+        self.toolbar = MainToolBar(self, data_bl2, data_tps, data_aodk)
         self.addToolBar(self.toolbar)
 
         # Set up a QSplitter
@@ -454,10 +462,13 @@ class GUI(QtWidgets.QMainWindow):
         self.display = DataDisplay(self)
 
         # Set up our treeview
-        if self.settings.value('toggles/game', 'bl2') == 'bl2':
+        current_game = self.settings.value('toggles/game', 'bl2')
+        if current_game == 'bl2':
             self.data = self.data_bl2
-        else:
+        elif current_game == 'tps':
             self.data = self.data_tps
+        else:
+            self.data = self.data_aodk
         self.treeview = MainTree(self, self.data, self.display)
 
         # Add both to the splitter
@@ -607,4 +618,6 @@ class Application(QtWidgets.QApplication):
         settings = QtCore.QSettings('Apocalyptech', 'FT Explorer')
         data_bl2 = data.Data('BL2')
         data_tps = data.Data('TPS')
-        self.app = GUI(settings, data_bl2, data_tps, self)
+        data_aodk = data.Data('AoDK')
+        self.app = GUI(settings, data_bl2, data_tps, data_aodk, self)
+
